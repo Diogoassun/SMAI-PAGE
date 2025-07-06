@@ -1,0 +1,41 @@
+/* ===== ESTILOS DO PRELOADER ===== */
+
+/* O contêiner principal que cobre toda a tela */
+#preloader {
+    position: fixed; /* Fica fixo na tela, mesmo com rolagem */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a; /* Cor de fundo escura */
+    z-index: 9999; /* Garante que fique na frente de todo o conteúdo */
+    display: flex; /* Usa flexbox para centralizar o spinner */
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.7s ease, visibility 0.7s ease; /* 0.7Transição suave para o fade-out */
+}
+
+/* O elemento que vai girar */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #444; /* Cor da borda do círculo */
+    border-top-color: #00ffff; /* Cor da parte que se move (ciano) */
+    border-radius: 50%; /* Transforma o quadrado em um círculo */
+    animation: spin 1s linear infinite; /* Aplica a animação */
+}
+
+/* Animação de rotação */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Classe que será adicionada via JavaScript para esconder o preloader */
+#preloader.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+img { max-width: 100%; height: auto; margin-top: 2rem; }
