@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Fundo de Vento</title>
+</head>
+<body>
+
+    <div class="wind-background">
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+        <div class="wind-particle"></div>
+    </div>
+
+    <main class="content">
+        <h1>Simulação de Brisa</h1>
+        <p>Este é o conteúdo da sua página. A animação de vento fica no fundo.</p>
+    </main>
+
+    <style>
+        /* style.css */
+
+        body {
+            /* Cor de fundo principal do seu site */
+            background-color: #0d1a26; 
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Esconde a barra de rolagem se a animação sair da tela */
+        }
+
+        /* Container que segura a animação */
+        .wind-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Coloca o fundo atrás do seu conteúdo */
+        }
+
+        /* Estilo das partículas de vento (pequenas linhas) */
+        .wind-particle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.2); /* Cor branca com baixa opacidade */
+            width: 40px;  /* Comprimento da partícula */
+            height: 1px;   /* Espessura da partícula */
+            
+            /* Inicia a partícula fora da tela, à esquerda */
+            transform: translateX(-100px); 
+            
+            /* Aplica a animação 'drift' */
+            animation-name: drift;
+            animation-timing-function: ease-in-out; /* Movimento suave */
+            animation-iteration-count: infinite; /* Animação em loop infinito */
+        }
+
+        /* Keyframes que definem o movimento da brisa */
+        @keyframes drift {
+            from {
+                /* Inicia fora da tela, à esquerda */
+                transform: translateX(-100px);
+                opacity: 0.8;
+            }
+            to {
+                /* Termina fora da tela, à direita */
+                transform: translateX(105vw); /* 105vw garante que saia completamente da tela */
+                opacity: 0;
+            }
+        }
+
+        /* ===== A MÁGICA PARA PARECER ALEATÓRIO ===== */
+        /* Aplicamos durações e posições diferentes para cada partícula */
+
+        .wind-particle:nth-child(1) {
+            top: 10%;
+            animation-duration: 15s;
+            animation-delay: -5s;
+        }
+        .wind-particle:nth-child(2) {
+            top: 25%;
+            animation-duration: 12s;
+            animation-delay: -2s;
+        }
+        .wind-particle:nth-child(3) {
+            top: 30%;
+            animation-duration: 18s;
+            animation-delay: -8s;
+        }
+        .wind-particle:nth-child(4) {
+            top: 45%;
+            animation-duration: 10s;
+            animation-delay: -10s;
+        }
+        .wind-particle:nth-child(5) {
+            top: 60%;
+            animation-duration: 16s;
+            animation-delay: -1s;
+        }
+        .wind-particle:nth-child(6) {
+            top: 75%;
+            animation-duration: 11s;
+            animation-delay: -7s;
+        }
+        .wind-particle:nth-child(7) {
+            top: 85%;
+            animation-duration: 20s;
+            animation-delay: -12s;
+        }
+        .wind-particle:nth-child(8) {
+            top: 5%;
+            animation-duration: 14s;
+            animation-delay: -15s;
+        }
+        .wind-particle:nth-child(9) {
+            top: 50%;
+            animation-duration: 17s;
+            animation-delay: -4s;
+        }
+        .wind-particle:nth-child(10) {
+            top: 95%;
+            animation-duration: 13s;
+            animation-delay: 0s;
+        }
+        /* Adicione mais se quiser um efeito mais denso */
+        .wind-particle:nth-child(11) {
+            top: 15%;
+            animation-duration: 19s;
+            animation-delay: -6s;
+        }
+        .wind-particle:nth-child(12) {
+            top: 38%;
+            animation-duration: 12s;
+            animation-delay: -11s;
+        }
+        .wind-particle:nth-child(13) {
+            top: 68%;
+            animation-duration: 15s;
+            animation-delay: -3s;
+        }
+        .wind-particle:nth-child(14) {
+            top: 80%;
+            animation-duration: 18s;
+            animation-delay: -9s;
+        }
+        .wind-particle:nth-child(15) {
+            top: 90%;
+            animation-duration: 10s;
+            animation-delay: -14s;
+        }
+
+
+        /* Estilo para o conteúdo da página (apenas para o exemplo) */
+        .content {
+            color: white;
+            text-align: center;
+            padding-top: 40vh;
+            font-family: sans-serif;
+        }
+    </style>
+    <script>
+
+    </script>
+</body>
+</html>

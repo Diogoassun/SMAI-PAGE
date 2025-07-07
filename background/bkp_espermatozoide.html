@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animação de Vento Interativo</title>
+    <style>
+        /* CSS para garantir que o canvas ocupe toda a tela */
+        body {
+            margin: 0;
+            overflow: hidden; /* Remove barras de rolagem */
+            background-color: #0c0c0c; /* Fundo escuro para destacar o efeito */
+        }
+        canvas {
+            display: block; /* Remove espaços extras abaixo do canvas */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="wind-canvas"></canvas>
+
+    <script>
+        // --- CONFIGURAÇÃO INICIAL ---
+        const canvas = document.getElementById('wind-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Define o tamanho do canvas para preencher a tela inteira
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // --- PARÂMETROS DA ANIMAÇÃO (sinta-se à vontade para alterar!) ---
+        const NUM_PARTICLES = 500; // Quantidade de partículas de "vento"
+        const PARTICLE_SPEED = 0.5;  // Velocidade base das partículas
+        const INTERACTION_RADIUS = 100; // Raio de influência do mouse
+        const REPEL_STRENGTH = 5;    // Força com que o mouse "empurra" o vento
+
+        // Armazena a posição do mouse
+        const mouse = {
+            x: null,
+            y: null,
+            radius: INTERACTION_RADIUS
+        };
+
+        // Atualiza as coordenadas do mouse quando ele se move
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+        
+        // Reseta as coordenadas quando o mouse sai da tela para parar a interação
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        let particlesArray = [];
+
+        // --- CLASSE DA PARTÍCULA ---
+        // Define como cada partícula de vento se comporta e se parece
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+                
+                // Salva a posição original para "resetar" a partícula
+                this.baseX = this.x;
+                this.baseY = this.y;
+            }
+
+            // Desenha a partícula na tela (uma linha fina para simular fluxo)
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                // Desenha uma linha na direção do movimento para criar o efeito de fluxo
+                ctx.lineTo(this.x - this.directionX * 3, this.y - this.directionY * 3);
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = this.size;
+                ctx.stroke();
+            }
+
+            // Atualiza a posição da partícula a cada frame
+            update() {
+                // Interação com o mouse
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Se a partícula está dentro do raio de influência do mouse
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        
+                        // Aplica a força de repulsão
+                        this.x -= forceDirectionX * force * REPEL_STRENGTH;
+                        this.y -= forceDirectionY * force * REPEL_STRENGTH;
+                    } else {
+                        // Se não, move-se normalmente
+                        this.x += this.directionX;
+                        this.y += this.directionY;
+                    }
+                } else {
+                    // Se o mouse está fora da tela, move-se normalmente
+                    this.x += this.directionX;
+                    this.y += this.directionY;
+                }
+
+                // Verifica se a partícula saiu da tela e a reposiciona do outro lado
+                if (this.x > canvas.width + 5) this.x = -5;
+                if (this.x < -5) this.x = canvas.width + 5;
+                if (this.y > canvas.height + 5) this.y = -5;
+                if (this.y < -5) this.y = canvas.height + 5;
+
+                this.draw();
+            }
+        }
+
+        // --- INICIALIZAÇÃO ---
+        // Cria todas as partículas em posições e direções aleatórias
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < NUM_PARTICLES; i++) {
+                let size = Math.random() * 0.5 + 0.2; // Tamanho da linha
+                let x = Math.random() * canvas.width;
+                let y = Math.random() * canvas.height;
+                // Partículas se movem principalmente para a direita
+                let directionX = (Math.random() * 0.5) + PARTICLE_SPEED; 
+                let directionY = (Math.random() * 0.4) - 0.2; // Leve variação vertical
+                let color = 'rgba(255, 255, 255, 0.7)'; // Cor branca com transparência
+
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        // --- LOOP DE ANIMAÇÃO ---
+        function animate() {
+            // Desenha um retângulo semi-transparente sobre a tela a cada frame.
+            // Isso cria o efeito de "rastro" ou "fade out" para as partículas.
+            ctx.fillStyle = 'rgba(12, 12, 12, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Atualiza cada partícula
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            
+            // Chama a próxima frame da animação
+            requestAnimationFrame(animate);
+        }
+        
+        // --- RESPONSIVIDADE ---
+        // Recria as partículas se o tamanho da janela mudar
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            mouse.radius = INTERACTION_RADIUS;
+            init();
+        });
+
+        // Inicia a mágica!
+        init();
+        animate();
+    </script>
+</body>
+</html>

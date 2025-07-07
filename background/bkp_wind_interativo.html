@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animação de Vento</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="wind-canvas"></canvas>
+
+    <div class="content">
+        <h1>Fluxo de Vento Interativo</h1>
+        <p>Mova o mouse pela tela.</p>
+    </div>
+
+    <style>
+        /* style.css */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a1a; /* Um fundo escuro para destacar o efeito */
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Estiliza o canvas para ser o fundo da página */
+        #wind-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Coloca o canvas atrás de todo o conteúdo */
+        }
+
+        /* Estiliza o conteúdo de exemplo para ficar visível */
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        // script.js
+
+        const canvas = document.getElementById('wind-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Define o tamanho do canvas para preencher a tela inteira
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Objeto para armazenar a posição do mouse
+        const mouse = {
+            x: null,
+            y: null,
+            radius: 120 // Raio de influência do mouse
+        };
+
+        // Evento que atualiza as coordenadas do mouse
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        // Reseta as coordenadas quando o mouse sai da tela para parar a interação
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        let particlesArray = [];
+        const numberOfParticles = 200; // Aumente para mais "vento"
+
+        // Classe para criar cada partícula de "vento"
+        class Particle {
+            constructor(x, y, size, speedX, speedY) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.speedX = speedX;
+                this.speedY = speedY;
+                this.baseX = this.x; // Posição X original para o fluxo retornar
+            }
+
+            // Desenha a partícula na tela
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Atualiza a posição da partícula e a interação com o mouse
+            update() {
+                // Verifica a distância da partícula para o mouse
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Calcula a força de repulsão do mouse
+                if (distance < mouse.radius) {
+                    const forceDirectionX = dx / distance;
+                    const forceDirectionY = dy / distance;
+                    const force = (mouse.radius - distance) / mouse.radius;
+                    const directionX = forceDirectionX * force * this.size * 5;
+                    const directionY = forceDirectionY * force * this.size * 5;
+                    
+                    // Aplica a força empurrando a partícula para longe do mouse
+                    this.x -= directionX;
+                    this.y -= directionY;
+                } else {
+                    // Se não estiver perto do mouse, a partícula tenta voltar ao seu fluxo original
+                    if (this.x !== this.baseX) {
+                        let dx = this.x - this.baseX;
+                        this.x -= dx / 20; // Suaviza o retorno
+                    }
+                }
+
+                // Move a partícula
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Recria a partícula do outro lado da tela quando ela sai
+                if (this.x > canvas.width + this.size) this.x = -this.size;
+                if (this.x < -this.size) this.x = canvas.width + this.size;
+                if (this.y > canvas.height + this.size) this.y = -this.size;
+                if (this.y < -this.size) this.y = canvas.height + this.size;
+            }
+        }
+
+        // Função para iniciar o enxame de partículas
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                const size = Math.random() * 1.5 + 0.5; // Tamanho aleatório
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const speedX = Math.random() * 1.5 - 0.5; // Velocidade horizontal principal
+                const speedY = Math.random() * 0.4 - 0.2; // Leve oscilação vertical
+                particlesArray.push(new Particle(x, y, size, speedX, speedY));
+            }
+        }
+
+        // Loop de animação
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa a tela a cada frame
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animate); // Chama a si mesma para o próximo frame
+        }
+
+        // Inicia tudo
+        init();
+        animate();
+
+        // Ajusta o canvas se a janela for redimensionada
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init(); // Reinicia as partículas para a nova dimensão
+        });
+    </script>
+</body>
+</html>

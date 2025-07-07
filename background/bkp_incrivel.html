@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animação de Vento Interativo</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Remove barras de rolagem */
+            background-color: #0a0f18; /* Fundo escuro para destacar as partículas */
+        }
+        canvas {
+            display: block; /* Remove espaço extra abaixo do canvas */
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        /* Estilo opcional para um texto de instrução */
+        h1 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Arial', sans-serif;
+            pointer-events: none; /* O texto não interfere com o mouse */
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="wind-canvas"></canvas>
+    <h1>Mova o mouse</h1>
+
+    <script>
+        const canvas = document.getElementById('wind-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ajusta o tamanho do canvas para a tela inteira
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // --- CONFIGURAÇÕES ---
+        const PARTICLE_COUNT = 800; // Número de partículas
+        const BASE_WIND_SPEED = 0.5; // Velocidade do vento de fundo
+        const MOUSE_BARRIER_RADIUS = 50; // Raio da barreira do mouse quando parado
+        const MOUSE_WIND_STRENGTH = 10; // Força do vento gerado pelo movimento do mouse
+
+        // Objeto para rastrear o mouse
+        const mouse = {
+            x: null,
+            y: null,
+            // Velocidade do mouse
+            vx: 0,
+            vy: 0,
+            // Posição anterior para calcular a velocidade
+            prevX: null,
+            prevY: null,
+            isMoving: false,
+            // Timeout para detectar se o mouse parou
+            stopTimeout: null
+        };
+
+        let particles = [];
+
+        // Classe para representar uma partícula
+        class Particle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height; // Posição inicial Y aleatória
+            }
+
+            // Reseta a partícula para uma nova posição inicial
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                // Velocidade inicial da partícula
+                this.vx = BASE_WIND_SPEED;
+                this.vy = (Math.random() - 0.5) * 0.5; // Leve variação vertical
+                this.radius = Math.random() * 1.5 + 0.5; // Tamanho da partícula
+                this.alpha = 0; // Transparência inicial
+                this.alphaTarget = Math.random() * 0.5 + 0.2; // Transparência alvo
+            }
+
+            update() {
+                // Interação com o mouse
+                if (mouse.x !== null) {
+                    const dx = this.x - mouse.x;
+                    const dy = this.y - mouse.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < MOUSE_BARRIER_RADIUS) {
+                        // Se o mouse está se movendo, ele empurra
+                        if (mouse.isMoving) {
+                            const force = (MOUSE_BARRIER_RADIUS - distance) / MOUSE_BARRIER_RADIUS;
+                            this.vx += mouse.vx * force * MOUSE_WIND_STRENGTH;
+                            this.vy += mouse.vy * force * MOUSE_WIND_STRENGTH;
+                        } 
+                        // Se o mouse está parado, ele desvia
+                        else {
+                            const angle = Math.atan2(dy, dx);
+                            const force = (MOUSE_BARRIER_RADIUS - distance) / MOUSE_BARRIER_RADIUS;
+                            this.vx += Math.cos(angle) * force * 2;
+                            this.vy += Math.sin(angle) * force * 2;
+                        }
+                    }
+                }
+                
+                // Aplica a velocidade à posição
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Simula atrito para a velocidade voltar ao normal
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                
+                // Garante que a velocidade base do vento sempre exista
+                if (Math.abs(this.vx) < BASE_WIND_SPEED) {
+                    this.vx = BASE_WIND_SPEED;
+                }
+
+                // Efeito de fade-in da partícula
+                if (this.alpha < this.alphaTarget) {
+                    this.alpha += 0.01;
+                }
+
+                // Se a partícula sair da tela, reseta sua posição
+                if (this.x > canvas.width + 10 || this.x < -10 || this.y > canvas.height + 10 || this.y < -10) {
+                    this.x = -5; // Começa um pouco fora da tela à esquerda
+                    this.y = Math.random() * canvas.height;
+                    this.vx = BASE_WIND_SPEED + Math.random() * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(200, 225, 255, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        // --- INICIALIZAÇÃO E EVENTOS ---
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            // Limpa a tela com um leve rastro para efeito de "motion blur"
+            ctx.fillStyle = 'rgba(10, 15, 24, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Chama o próximo frame da animação
+            requestAnimationFrame(animate);
+        }
+
+        // Event listener para movimento do mouse
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+            mouse.isMoving = true;
+
+            // Calcula a velocidade do mouse
+            if (mouse.prevX !== null) {
+                mouse.vx = (mouse.x - mouse.prevX) * 0.1;
+                mouse.vy = (mouse.y - mouse.prevY) * 0.1;
+            }
+            mouse.prevX = mouse.x;
+            mouse.prevY = mouse.y;
+
+            // Reseta o timeout que detecta se o mouse parou
+            clearTimeout(mouse.stopTimeout);
+            mouse.stopTimeout = setTimeout(() => {
+                mouse.isMoving = false;
+                mouse.vx = 0;
+                mouse.vy = 0;
+            }, 100); // Se o mouse não se mover por 100ms, considera-se parado
+        });
+
+        // Reseta o mouse quando ele sai da janela
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+            mouse.isMoving = false;
+        });
+        
+        // Ajusta o canvas se a janela for redimensionada
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init(); // Reinicia as partículas para a nova dimensão
+        });
+
+
+        // Inicia tudo
+        init();
+        animate();
+
+    </script>
+</body>
+</html>

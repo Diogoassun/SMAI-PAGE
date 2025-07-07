@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poeira no Ar Interativa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="dust-canvas"></canvas>
+    <div class="content">
+        <h1>Poeira em Suspensão</h1>
+        <p>Observe as partículas flutuando em diferentes profundidades e interaja com o mouse.</p>
+    </div>
+    <style>
+        /* style.css */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #1a1a2a; /* Um pouco mais azulado */
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Evita barras de rolagem */
+        }
+        #dust-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+    </style>
+    <script>
+            // script.js
+
+        const canvas = document.getElementById('dust-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // --- Configurações da Simulação de Poeira ---
+        const PARTICLE_COUNT = 250;    // Mais partículas para um efeito denso
+        const MOUSE_RADIUS = 100;       // Raio de influência do mouse
+        const REPEL_STRENGTH = 0.5;       // Força do desvio (um pouco mais forte)
+        const MAX_DEPTH = 100;            // Profundidade máxima da cena (eixo Z simulado)
+        const MAX_PARTICLE_SIZE = 3;    // Tamanho máximo das partículas 'próximas'
+        const BASE_FLOAT_SPEED = 0.12;   // Velocidade base da flutuação
+
+        const mouse = { x: null, y: null };
+
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        class DustParticle {
+            constructor() {
+                this.reset();
+            }
+
+            // Reseta a partícula em uma posição e profundidade aleatória
+            reset() {
+                // Posição x, y, e z (profundidade)
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.z = Math.random() * MAX_DEPTH; // Profundidade aleatória
+
+                // Propriedades baseadas na profundidade (EFEITO PARALLAX)
+                // Quanto maior o z (mais perto), maior o scale
+                const scale = (this.z / MAX_DEPTH);
+                this.size = scale * MAX_PARTICLE_SIZE;
+                this.speed = scale * BASE_FLOAT_SPEED + 0.1;
+                this.opacity = scale * 0.7;
+
+                // Ângulo de movimento para flutuação
+                this.angle = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                // --- Movimento de Flutuação ---
+                // A partícula se move lentamente na direção do seu ângulo
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                // O ângulo muda um pouco a cada frame, criando um desvio suave
+                this.angle += (Math.random() - 0.5) * 0.05;
+
+                // --- Interação com Mouse ---
+                if (mouse.x !== null) {
+                    const dx = this.x - mouse.x;
+                    const dy = this.y - mouse.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < MOUSE_RADIUS) {
+                        const force = (MOUSE_RADIUS - distance) / MOUSE_RADIUS;
+                        const repelAngle = Math.atan2(dy, dx);
+                        
+                        // A força do desvio também é afetada pela profundidade (partículas perto se movem mais)
+                        const moveX = Math.cos(repelAngle) * force * REPEL_STRENGTH * (this.z / MAX_DEPTH);
+                        const moveY = Math.sin(repelAngle) * force * REPEL_STRENGTH * (this.z / MAX_DEPTH);
+                        
+                        this.x += moveX;
+                        this.y += moveY;
+                    }
+                }
+
+                // --- Verificação de Limites da Tela ---
+                // Se sair por um lado, aparece no outro (efeito de "universo" contínuo)
+                if (this.x > canvas.width + this.size) this.x = -this.size;
+                else if (this.x < -this.size) this.x = canvas.width + this.size;
+                if (this.y > canvas.height + this.size) this.y = -this.size;
+                else if (this.y < -this.size) this.y = canvas.height + this.size;
+            }
+
+            draw() {
+                // A cor usa a opacidade calculada para dar profundidade
+                ctx.fillStyle = `rgba(255, 255, 240, ${this.opacity})`; // Branco levemente amarelado
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        let particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push(new DustParticle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Recria as partículas para se adaptarem ao novo tamanho
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(new DustParticle());
+            }
+        });  
+    </script>
+</body>
+</html>

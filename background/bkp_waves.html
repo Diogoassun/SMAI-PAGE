@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Fundo de Vento</title>
+</head>
+<body>
+    <div class="background-wind">
+        </div>
+
+    <div class="content">
+        <h1>Seu Conteúdo Aqui</h1>
+        <p>Este conteúdo fica sobre o fundo animado.</p>
+    </div>
+
+    <div class="particles-container"></div>
+
+    <style>
+        /* Animação de Vento com Linhas Sutis */
+
+        body {
+            /* Garante que o body seja a referência de posicionamento */
+            position: relative;
+            background-color: #1a1a1a; /* Cor de fundo escura para o exemplo */
+            overflow: hidden; /* Evita barras de rolagem causadas pela animação */
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right,
+                    rgba(255, 255, 255, 0.05) 1px,
+                    transparent 1px
+                );
+            background-size: 50px 100%; /* Espaçamento entre as linhas */
+            animation: wind-lines 15s linear infinite;
+            will-change: transform; /* Otimização de performance */
+        }
+
+        /* A segunda camada de linhas se move um pouco mais rápido e tem um atraso */
+        body::after {
+            animation-delay: -2s;
+            animation-duration: 20s;
+            background-size: 80px 100%;
+        }
+
+        @keyframes wind-lines {
+            from {
+                transform: translateX(-100%);
+            }
+            to {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+    <script>
+
+    </script>
+</body>
+</html>
