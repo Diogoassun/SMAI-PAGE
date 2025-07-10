@@ -152,7 +152,7 @@ app.post('/login', (req, res) => {
         // LÓGICA CORRIGIDA E SIMPLIFICADA
         if (user.is_two_factor_enabled) {
             req.session.pending_2fa_userId = user.id;
-            res.redirect('/enter-2fa-token');
+            res.redirect(__dirname + '/enter-2fa-token');
         } else {
             req.session.userId = user.id;
             req.session.userEmail = user.email;
