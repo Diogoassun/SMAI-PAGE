@@ -31,4 +31,7 @@ app.use((request, response, next) => {
     response.status(404).sendFile(path.join(__dirname, 'public', '/not-found.html'))
 })
 
-app.listen(3333)
+app.listen({
+    host: '0.0.0.0',
+    port: 3333
+})
