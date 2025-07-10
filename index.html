@@ -33,5 +33,37 @@
         </div>
         <button type="submit">Registrar</button>
     </form>
+    <script>
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Redirect the browser to the URL provided by the server
+                window.location.href = result.redirectUrl;
+            } else {
+                // Display an error message to the user
+                alert(result.message || 'Falha no login.');
+            }
+        } catch (error) {
+            console.error('Erro ao fazer login:', error);
+            alert('Ocorreu um erro. Tente novamente.');
+        }
+    });
+</script>
 </body>
 </html>
