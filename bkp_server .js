@@ -21,14 +21,7 @@ const __dirname = path.dirname(__filename)
 
 const app = express();
 
-app.set('trust proxy', 1);
-
 app.use(express.static(path.join(__dirname, 'public')))
-
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    // ... o resto da sua configuração de sessão
-}));
 
 app.get('/status', (request, response) => {
     console.log('✅ Rota /status foi chamada!');
@@ -134,7 +127,7 @@ app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(400).send('Email e senha são obrigatórios.');
+        return res.status(400).json({ success: false, message: 'Email e senha são obrigatórios.' });
     }
 
     const sql = 'SELECT * FROM users WHERE email = ?';
@@ -142,30 +135,30 @@ app.post('/login', (req, res) => {
     db.query(sql, [email], async (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).send('Erro no servidor.');
+            return res.status(500).json({ success: false, message: 'Erro no servidor.' });
         }
 
         if (results.length === 0) {
-            return res.status(401).send('Email ou senha inválidos.');
+            return res.status(401).json({ success: false, message: 'Email ou senha inválidos.' });
         }
 
         const user = results[0];
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).send('Email ou senha inválidos.');
+            return res.status(401).json({ success: false, message: 'Email ou senha inválidos.' });
         }
 
-        // LÓGICA CORRIGIDA E SIMPLIFICADA
         if (user.is_two_factor_enabled) {
             req.session.pending_2fa_userId = user.id;
-            res.redirect('/enter-2fa-token');
+            // Send JSON response with redirect information
+            res.json({ success: true, redirectUrl: '/enter-2fa-token' });
         } else {
             req.session.userId = user.id;
             req.session.userEmail = user.email;
-            res.redirect('/dashboard');
+            // Send JSON response with redirect information
+            res.json({ success: true, redirectUrl: '/dashboard' });
         }
-        // O CÓDIGO CONFLITANTE QUE ESTAVA AQUI FOI REMOVIDO
     });
 });
 
