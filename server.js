@@ -348,6 +348,4 @@ app.use((request, response, next) => {
 app.listen({
     host: '0.0.0.0',
     port: process.env.PORT
-}, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-});
+})
