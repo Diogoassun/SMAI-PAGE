@@ -16,6 +16,11 @@ app.use(cors());
 // Essencial para a rota de controle.
 app.use(express.json());
 
+// Rota raiz para teste rápido se o backend está ativo
+app.get('/', (req, res) => {
+    res.send('API rodando com sucesso no Railway!');
+});
+
 // 3. Configurações do Banco de Dados
 const dbConfig = {
     host: 'simai-db-instance.cdmwaesa0i63.sa-east-1.rds.amazonaws.com',
@@ -89,7 +94,6 @@ app.post('/api/control', (req, res) => {
     // Simplesmente respondemos ao front-end com uma mensagem de sucesso
     res.status(200).json({ message: `Comando '${comando}' foi recebido e processado!` });
 });
-
 
 // 5. Iniciar o Servidor
 app.listen(PORT, () => {
