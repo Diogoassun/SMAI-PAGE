@@ -4,6 +4,7 @@
 const express = require('express');
 const mysql = require('mysql2/promise'); // Usamos a versão com Promises para async/await
 const cors = require('cors');
+const path = require('path');
 
 // 2. Configurações Iniciais
 const app = express();
@@ -12,9 +13,11 @@ const PORT = process.env.PORT || 3001; // Usa a porta do ambiente ou 3001 localm
 // Habilita o CORS para que seu front-end (HTML) possa fazer requisições
 app.use(cors());
 
-// NOVO E IMPORTANTE: Habilita o servidor a entender JSON no corpo das requisições.
-// Essencial para a rota de controle.
+// Habilita o servidor a entender JSON no corpo das requisições.
 app.use(express.json());
+
+// Serve os arquivos estáticos da pasta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Rota raiz para teste rápido se o backend está ativo
 app.get('/', (req, res) => {
@@ -69,30 +72,24 @@ app.get('/api/modelos', async (req, res) => {
     }
 });
 
-// NOVO ENDPOINT: Rota para receber os comandos do Controle Manual
-app.post('/api/control', (req, res) => {
-    // Extrai os dados enviados pelo front-end no corpo da requisição
-    const { comando, marcaId, modeloId } = req.body;
+// Endpoint para receber comandos do Controle Manual
+app.post('/api/control', async (req, res) => {
+    try {
+        const { comando, marcaId, modeloId } = req.body;
 
-    // Validação para garantir que todos os dados necessários foram recebidos
-    if (!comando || !marcaId || !modeloId) {
-        return res.status(400).json({ message: 'Erro: Informações incompletas. É necessário enviar comando, marcaId e modeloId.' });
+        if (!comando || !marcaId || !modeloId) {
+            return res.status(400).json({ message: 'Erro: Informações incompletas. É necessário enviar comando, marcaId e modeloId.' });
+        }
+
+        console.log(`✅ Comando recebido: '${comando}' | Marca ID: ${marcaId} | Modelo ID: ${modeloId}`);
+
+        // Aqui poderia entrar a lógica para enviar o sinal IR baseado nos dados recebidos.
+
+        return res.status(200).json({ message: `Comando '${comando}' foi recebido e processado!` });
+    } catch (error) {
+        console.error('Erro no endpoint /api/control:', error);
+        return res.status(500).json({ error: 'Erro interno no servidor ao processar comando.' });
     }
-
-    // Log no console do servidor para vermos o que foi recebido
-    console.log(`✅ Comando recebido: '${comando}' | Marca ID: ${marcaId} | Modelo ID: ${modeloId}`);
-
-    // =======================================================================
-    // AQUI ENTRA A LÓGICA DE HARDWARE
-    // Neste ponto, você usaria uma biblioteca para interagir com o hardware
-    // e enviar o sinal infravermelho (IR) correto com base nos dados recebidos.
-    // Exemplo de como a lógica poderia ser:
-    // const codigoIR = buscarCodigoNoBanco(marcaId, modeloId, comando);
-    // enviarSinalIR(codigoIR);
-    // =======================================================================
-
-    // Simplesmente respondemos ao front-end com uma mensagem de sucesso
-    res.status(200).json({ message: `Comando '${comando}' foi recebido e processado!` });
 });
 
 // 5. Iniciar o Servidor
