@@ -21,14 +21,7 @@ const __dirname = path.dirname(__filename)
 
 const app = express();
 
-app.set('trust proxy', 1);
-
 app.use(express.static(path.join(__dirname, 'public')))
-
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    // ... o resto da sua configuração de sessão
-}));
 
 app.get('/status', (request, response) => {
     console.log('✅ Rota /status foi chamada!');
