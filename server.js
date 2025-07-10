@@ -21,7 +21,11 @@ const __dirname = path.dirname(__filename)
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(express.static(path.join(__dirname, 'public')))
+
+
 
 app.get('/status', (request, response) => {
     console.log('✅ Rota /status foi chamada!');
