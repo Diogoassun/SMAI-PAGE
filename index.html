@@ -2,58 +2,36 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Teste de Servidor Node</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Login</title>
 </head>
 <body>
-    <h1>Teste de Comunicação com o Servidor</h1>
-    <p>Clique no botão para fazer uma requisição <code>fetch</code> para a rota <code>/status</code> do servidor.</p>
-    
-    <button id="testButton">Testar Servidor</button>
-    
+    <h1>Login</h1>
+    <form action="/login" method="POST">
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div>
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="password" required>
+        </div>
+        <button type="submit">Entrar</button>
+    </form>
+
     <hr>
-    <h2>Resultado do Servidor:</h2>
-    <pre id="resultArea">Aguardando o teste...</pre>
 
-    <script src="/js/client.js"></script>
-    <script>
-console.log("✅ client.js carregado!");
-
-const testButton = document.getElementById('testButton');
-const resultArea = document.getElementById('resultArea');
-
-console.log("🕵️‍♂️ Procurando o botão:", testButton);
-
-if (testButton) {
-  testButton.addEventListener('click', () => {
-    console.log("🔘 Botão clicado! Iniciando fetch...");
-    resultArea.textContent = 'Carregando...';
-    resultArea.style.color = 'black';
-
-    fetch('http://localhost:3333/status')
-      .then(response => {
-        console.log("➡️ Resposta recebida do servidor. Status:", response.status);
-        if (!response.ok) {
-          // Se o status não for 2xx, lança um erro para cair no .catch()
-          throw new Error(`O servidor respondeu com um erro: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log("✔️ Sucesso! Dados recebidos:", data);
-        resultArea.textContent = JSON.stringify(data, null, 2);
-      })
-      .catch(error => {
-        // Se qualquer parte do processo falhar, este código será executado
-        console.error("❌ ERRO NO FETCH:", error);
-        console.log(response.json());
-        resultArea.textContent = `Falha ao conectar com o servidor.\n\nERRO: ${error.message}\n\nVerifique o console (F12) para mais detalhes.`;
-        resultArea.style.color = 'red';
-      });
-  });
-} else {
-  console.error("❌ Não foi possível encontrar o elemento com id='testButton'");
-}
-    </script>
+    <h1>Registrar</h1>
+    <form action="/register" method="POST">
+        <div>
+            <label for="reg-email">Email:</label>
+            <input type="email" id="reg-email" name="email" required>
+        </div>
+        <div>
+            <label for="reg-senha">Senha:</label>
+            <input type="password" id="reg-senha" name="password" required>
+        </div>
+        <button type="submit">Registrar</button>
+    </form>
 </body>
 </html>

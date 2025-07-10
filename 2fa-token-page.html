@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Dois Fatores</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
+        form { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        input { font-size: 1.2em; margin-bottom: 10px; }
+        button { width: 100%; padding: 10px; font-size: 1em; }
+    </style>
+</head>
+<body>
+    <h1>Verificação de Segurança</h1>
+    <p>Abra seu aplicativo de autenticação e insira o código de 6 dígitos.</p>
+    
+    <form action="/verify-2fa-login" method="POST">
+        <div>
+            <label for="token">Código de Verificação:</label>
+            <input 
+                type="text" 
+                id="token" 
+                name="token" 
+                required 
+                maxlength="6" 
+                pattern="\d{6}" 
+                title="O código deve ter 6 dígitos."
+                inputmode="numeric">
+        </div>
+        <button type="submit">Verificar</button>
+    </form>
+</body>
+</html>
