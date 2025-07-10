@@ -7,7 +7,7 @@ const cors = require('cors');
 
 // 2. Configurações Iniciais
 const app = express();
-const PORT = 3001; // Você pode escolher a porta que quiser
+const PORT = process.env.PORT || 3001; // Usa a porta do ambiente ou 3001 localmente
 
 // Habilita o CORS para que seu front-end (HTML) possa fazer requisições
 app.use(cors());
