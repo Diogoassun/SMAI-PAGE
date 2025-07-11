@@ -1,6 +1,7 @@
 // server.js
 
 // 1. Importar as bibliotecas
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2/promise'); // Usamos a versão com Promises para async/await
 const cors = require('cors');
@@ -26,11 +27,11 @@ app.get('/', (req, res) => {
 
 // 3. Configurações do Banco de Dados
 const dbConfig = {
-    host: 'simai-db-instance.cdmwaesa0i63.sa-east-1.rds.amazonaws.com',
-    user: 'admin',
-    password: '*Juanpablo88', // Sua senha aqui
-    database: 'ar_condicionado', // Nome do seu banco de dados
-    port: 3306
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
 };
 
 // 4. Criação dos Endpoints (Rotas da API)
