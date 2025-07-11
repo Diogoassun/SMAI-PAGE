@@ -117,7 +117,7 @@
 
 			async function carregarMarcas() {
 				try {
-					const response = await fetch('http://localhost:3001/api/marcas'); 
+					const response = await fetch('https://smai-7cmk.onrender.com/api/marcas'); 
 					const marcas = await response.json();
 
 					selectMarca.innerHTML = '<option value="">Selecione uma marca</option>';
