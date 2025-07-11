@@ -1,18 +1,21 @@
 {
-  "name": "adminhub-master",
+  "name": "smai-app",
   "version": "1.0.0",
-  "main": "index.js",
- "scripts": {
-  "start": "node server.js",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "description": "Sistema com login, autenticação 2FA e envio de email",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "mysql2": "^3.14.1"
+    "axios": "^1.6.7",
+    "body-parser": "^1.20.2",
+    "dotenv": "^17.2.0",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mysql2": "^3.9.0",
+    "nodemailer": "^6.9.13",
+    "qrcode": "^1.5.3",
+    "speakeasy": "^2.0.0"
   }
 }
