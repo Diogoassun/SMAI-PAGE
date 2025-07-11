@@ -1,0 +1,558 @@
+:root {
+  --hover-color: gray;
+  --color1: rgb(49, 3, 255);
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+html, body{height: 100%;}
+    
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background-color: #1A1A1A;
+  color: #E0E0E0;
+  background-image: linear-gradient(to right top, #101010, #181a1a, #202424, #283030, #303c3c);
+  max-width: 100vw;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+
+main {
+  padding-top: 20px;
+}
+
+@media screen and (max-width: 880px) {
+  #inicio{
+    background: rgb(49, 3, 255);
+  }
+}
+
+#header1 > .header-navbar-link{
+  width: 100vw;
+  top: 0;
+  left: 0;
+  z-index: 3000;
+  position: fixed;
+}
+
+.nav_second{
+  z-index: 3000;
+  display: flex;
+  position: sticky;
+  top: 64px;
+  width: 100vw;
+  height: 72px;
+  align-content: center;
+  justify-content: center;
+  background-color: #00E5FF;
+}
+
+.nav_second >a{
+  display: flex;
+  color: red;
+  background: green;
+}
+
+
+    /* Menu no topo com estilo de vidro */
+    .header-navbar-link {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 20px 0;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      
+      border-radius: 0 0 15px 15px;
+      box-shadow: 0 4px 20px rgba(0, 255, 255, 0.05);
+    }
+    
+    .header-navbar-link a {
+      text-transform: uppercase;
+      text-decoration: none;
+      /* color: #A7FFEB; */
+      color:white;
+      font-weight: 500;
+      transition: color 0.3s ease, transform 0.4s ease;
+    }
+
+    .header-navbar-link a:hover {
+      color: #fdffff;
+      transform: scale(1.1);
+      background-color: #0c8148;
+    }
+
+nav a.active {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+}
+/*
+section {
+    height: 100vh; /* Faz com que cada seção ocupe a altura toda da tela
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+*/
+
+    /* Seção Início com caixa de vidro */
+    #inicio {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    #inicio h1 {
+      font-size: 2.8em;
+      font-weight: 600;
+      color: #00E5FF;
+      margin-bottom: 20px;
+    }
+
+    #inicio p {
+      font-size: 1.1em;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    #inicio strong {
+      color: #00E676;
+    }
+
+    #inicio .caixa {
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      transition: all 0.4s ease;
+    }
+
+    /* Reflexo sutil no topo */
+    .caixa::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40%;
+      border-radius: 20px 20px 0 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+      pointer-events: none;
+    }
+
+    /* Seção Funcionalidades */
+    #funcionalidades {
+      text-align: center;
+      /*background-color: #0f1518;
+      */
+      background-color: blue;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 50px 20px;
+    }
+
+
+#funcionalidades h1 {
+  font-size: 2.8em;
+  font-weight: 600;
+  color: #00E5FF;
+  margin-bottom: 20px;
+}
+    #funcionalidades h2 {
+      font-size: 2.2em;
+      color: #00E5FF;
+      margin-bottom: 40px;
+    }
+
+
+
+  #funcionalidades p {
+    font-size: 1.1em;
+    line-height: 1.8;
+    margin-bottom: 0px; /*20px*/
+  }
+
+.description-scroll-wrapper {
+  padding: 10px;
+  background-color: red;
+  max-width: 100%;
+  position: relative;
+}
+
+.funcionalidades-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  
+  overflow-x: auto;
+  
+  scroll-snap-type: x mandatory;
+  gap: 20px 20px;
+  padding-left: 20px;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  background-color: #4da47a;
+  transition: transform 0.4s ease;
+}
+
+.funcionalidades-scroll::-webkit-scrollbar {
+  /*
+  height: 0px;
+   Altura da barra */
+  display: none;
+}
+
+.funcionalidades-scroll::-webkit-scrollbar-thumb {
+  /*
+  background: rgba(0, 229, 255, 0.3); Cor da barra */
+  border-radius: 0px;
+}
+
+.funcionalidades-scroll::-webkit-scrollbar-track {
+  background: none;
+}
+
+.description-page{
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  gap: 20px 20px;
+  scroll-snap-align: center;
+  scroll-snap-stop: normal;
+    /* A MÁGICA ACONTECE AQUI */
+
+  /* 1. Diz ao navegador para pular a renderização desta página se ela não estiver na tela. */
+  content-visibility: auto;
+
+  /* 2. Informa o tamanho aproximado da página ANTES de renderizá-la.
+     Isso evita que a barra de rolagem principal "pule" enquanto você rola.
+     Ajuste a altura (ex: 340px) para ser um pouco maior que a altura dos seus cards. */
+  contain-intrinsic-size: 250px; 
+}
+
+.description {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 250px;
+  flex-basis: 250px;
+  height: 300px;
+  max-width: 250px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  align-items: center;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: #1a1f22;
+  box-shadow: 0 8px 8px rgba(31, 30, 30, 0.25),
+  inset 0 0 8px rgba(255, 255, 255, 0.05);
+  /*box-shadow: 0 0 10px rgba(0,0,0,0.4);*/
+  transition: all 0.3s ease;
+  cursor: default;
+}
+    
+.description:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 0px 30px rgba(0, 255, 255, 0.12);
+}
+    
+    .description h3 {
+      font-size: 1.1em;
+      /*color: #00E5FF;*/
+      color: #00e6ff;
+      margin-bottom: 10px;
+    }
+
+    .description p {
+      font-size: 0.95em;
+      color: #E0E0E0;
+    }
+
+    /* Animação de entrada */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+      #plataformaweb {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+#plataformaweb h2 {
+  font-size: 2.2em;
+  color: #00E5FF;
+  margin-bottom: 30px;
+}
+
+.imagem-plataforma {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  transition: all 0.4s ease;
+}
+
+.imagem-plataforma p {
+  color: #E0E0E0;
+  font-size: 1.05em;
+  margin-bottom: 20px;
+}
+
+.imagem-plataforma img {
+  max-width: 100%;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+#seguranca {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+#seguranca h2 {
+  font-size: 2.2em;
+  color: #00E5FF;
+  margin-bottom: 30px;
+}
+
+.seguranca-box {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  transition: all 0.4s ease;
+  text-align: left;
+  color: #E0E0E0;
+}
+
+.seguranca-box ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+
+.seguranca-box li {
+  margin-bottom: 12px;
+  font-size: 1.05em;
+}
+
+.seguranca-box strong {
+  color: #00E5FF;
+}
+
+
+/* Seção Funcionalidades */
+    #comofunciona {
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    #comofunciona h2 {
+      font-size: 2.2em;
+      color: #00E5FF;
+      margin-bottom: 40px;
+    }
+
+    .comofunciona-scroll {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding: 20px;
+      padding: 10px 20px;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      cursor: grab;
+    }
+
+    .comofunciona-scroll::-webkit-scrollbar {
+      height: 10px; /* Altura da barra */
+    }
+
+    .comofunciona-scroll::-webkit-scrollbar-thumb {
+      background: rgba(0, 229, 255, 0.3); /* Cor da barra */
+      border-radius: 5px;
+    }
+
+    .comofunciona-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .comofunciona {
+      position: relative;
+      flex: 0 0 250px;
+      height: 250px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 20px;
+      padding: 20px;
+      box-sizing: border-box;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25),
+                  inset 0 0 10px rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .comofunciona:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.12);
+    }
+
+    .comofunciona h3 {
+      font-size: 1.1em;
+      color: #00E5FF;
+      margin-bottom: 10px;
+    }
+
+    .comofunciona p {
+      font-size: 0.95em;
+      color: #E0E0E0;
+    }
+    #comofunciona .caixa {
+      max-width: 800px;       /* limita a largura para não ficar muito grande */
+      margin: 0 auto;         /* centraliza horizontalmente */
+      padding: 20px 25px;     /* reduz um pouco o padding interno */
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      transition: all 0.4s ease;
+      text-align: left;
+      color: #E0E0E0;
+    }
+
+
+
+.nav-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin: 20px auto;
+}
+
+.arrow-btn {
+  width: 45px;
+  height: 45px;
+  border: 1px solid #444;
+  border-radius: 50%;
+  background-color: transparent;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s;
+}
+
+.arrow-btn:hover {
+  background-color: rgb(49, 45, 45);
+}
+
+.arrow-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  /*cursor: not-allowed;*/
+}
+
+.page-indicator {
+  font-size: 20px;
+  font-weight: 500;
+  color: #ccc;
+}
+
+
+
+
+
+.footer_link{
+  height: 1000px;
+  background: #007d8b;
+}
+
+
+.autoShow{
+  animation: text-appear both;
+  animation-timeline: view();
+  animation-range: entry 20% cover;
+}
+
+@keyframes text-appear {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+.imageReveal{
+  animation: imageReveal both;
+  animation-timeline: view(5% 5%);
+}
+
+@keyframes imageReveal{
+  from {
+    filter: saturate(0) contrast(0) brightness(0.1) blur(3px);
+    opacity: 0;
+    scale: .95;
+    translate: 0 4rem;
+  }
+  to {
+    filter: none;
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+  }
+}
+*/
