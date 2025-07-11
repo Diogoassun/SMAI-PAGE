@@ -18,12 +18,12 @@ app.use(cors());
 app.use(express.json());
 
 // Serve os arquivos estáticos da pasta 'public'
-app.use(express.static(path.join(__dirname, 'public')))
+//app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.static(path.join(__dirname, 'PAGINA_DO_USUARIO')));
 
 // Rota raiz para teste rápido se o backend está ativo
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'PAGINA_DO_USUARIO', 'presetantion.html'));
+    res.sendFile(path.join(__dirname, 'PAGINA_DO_USUARIO', 'index.html'));
 });
 
 // 3. Configurações do Banco de Dados
