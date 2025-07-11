@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Rota raiz para teste rápido se o backend está ativo
 app.get('/', (req, res) => {
-    res.send('API rodando com sucesso no Railway!');
+    res.sendFile(path.join(__dirname, 'PAGINA_DO_USUARIO', 'index.html'));
 });
 
 // 3. Configurações do Banco de Dados
