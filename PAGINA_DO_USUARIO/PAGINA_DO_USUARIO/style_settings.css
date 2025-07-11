@@ -313,6 +313,7 @@ body {
     font-family: var(--poppins);
     max-height: calc(100vh - 56px);
     overflow-y: auto;
+    position: relative;
 }
 #content main .head-title {
     display: flex;
@@ -554,6 +555,29 @@ body {
 
 
 /* MAIN */
+#snow-container {
+    position: fixed; /* melhor para cobrir toda a tela */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* permite clicar nos elementos abaixo */
+    z-index: -1; /* ou qualquer valor alto */
+}
+
+#snow-container .snowflake-icon {
+    pointer-events: none;
+    animation: fadeIn 1.5s ease-in-out, fall 10s linear infinite;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-100px) rotate(0deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+    }
+}
 /* CONTENT */
 
 
