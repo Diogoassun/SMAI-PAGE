@@ -4,7 +4,7 @@
   "description": "Sistema com login, autenticação 2FA e envio de email",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node PAGINA_DO_USUARIO/server.js"
   },
   "dependencies": {
     "axios": "^1.6.7",
