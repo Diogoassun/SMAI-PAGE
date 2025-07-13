@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ativar 2FA</title>
+</head>
+<body>
+  <h1>Ativar Autenticação de Dois Fatores</h1>
+  <% if (mensagem) { %>
+    <p style="color:green;"><%= mensagem %></p>
+  <% } %>
+  <p>Para aumentar a segurança da sua conta, ative a autenticação por código enviado no e-mail.</p>
+  <form method="GET" action="/enable-2fa">
+    <button type="submit">Ativar 2FA</button>
+  </form>
+  <p><a href="/">Voltar</a></p>
+</body>
+</html>

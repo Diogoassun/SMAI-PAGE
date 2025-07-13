@@ -3,6 +3,7 @@
 // import { fileURLToPath } from 'url'
 
 import express from 'express'
+import jwt from 'jsonwebtoken'
 
 import dotenv from 'dotenv'
 dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
@@ -12,6 +13,8 @@ import bcrypt from 'bcrypt'
 import session from 'express-session'
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
+
+import authRouter from './routes/authRoutes.js';
 
 import path from 'path'
 import {fileURLToPath} from 'url'
@@ -23,9 +26,98 @@ const app = express();
 
 app.set('trust proxy', 1);
 
-app.use(express.static(path.join(__dirname, 'public')))
+// app.use(express.static(path.join(__dirname, '/')))
+app.use(express.static(path.join(__dirname, '/public')));
+// app.use(express.static(path.join(__dirname, 'SITE_CADEIRA_ES')));
+
+/*
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    // ... o resto da sua configuração de sessão
+}));
+*/
+
+// Middleware de Logger
+const logger = (req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next(); // Essencial! Passa para o próximo da fila.
+};
+
+// Use o middleware na sua aplicação
+app.use(logger);
 
 
+// 3. MIDDLEWARE
+// ==========================================
+// Configurar o body-parser para lidar com dados de formulário
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+
+// ROTA DE TESTE
+const users = [
+    {id: 1, username: 'leo', password: '123456', role: 'admin'},
+    {id: 2, username: 'oel', password: '654321', role: 'user'}
+]
+
+// ROTA ENVIAR
+
+function checkAuth(req, res, next) {
+    next();
+    if (req.session.user) {
+        return next(); // Autenticado, pode continuar
+    }
+    // Não autenticado! Redireciona para o login com a URL original
+    const redirectUrl = encodeURIComponent(req.originalUrl); // ex: /pedidos
+    console.log('error');
+    res.redirect(`/login?redirectUrl=${redirectUrl}`);
+}
+
+// app.get('/pedidos', checkAuth, (req, res) => { /* ... */ });
+
+app.post('/enviar', checkAuth, (req, res) => {
+    const { email, password } = req.body;
+    console.log('tstesssssssssssssssssssss');
+    //const user =  users.find(user => user.user == username && user.password == password);
+
+    if (1){
+
+        const userPayload =  {
+            id: 123,
+            username: "admin",
+            role: "admin"
+        };
+
+        const acessToken= jwt.sign(
+            userPayload,
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '60s' }
+        );
+
+        const refreshToken= jwt.sign(
+            userPayload,
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '1h' }
+        );
+
+
+        res.status(201).json({
+            message: "login bem sucedido",
+            tokens: { acessToken, refreshToken },
+            userPayload
+        });
+    }
+    else {
+        res.status(401).json({
+            success: false, 
+            message: "usuario não é válido"
+        });
+    }
+})
+
+// ROTA DE TESTE
+
+// ROTAS
+app.use('/sobre', authRouter);
 
 app.get('/status', (request, response) => {
     console.log('✅ Rota /status foi chamada!');
@@ -58,7 +150,7 @@ const port = process.env.PORT;
 
 // 2. CONFIGURAÇÃO DO BANCO DE DADOS (APENAS UMA VEZ!)
 // ====================================================
-const db = mysql.createConnection({
+const dataBase = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -66,7 +158,7 @@ const db = mysql.createConnection({
 });
 
 // Conectar ao banco de dados
-db.connect((err) => {
+dataBase.connect((err) => {
   if (err) {
     console.error('!!!!!!!!!! ERRO AO CONECTAR AO BANCO DE DADOS !!!!!!!!!!');
     throw err;
@@ -75,10 +167,7 @@ db.connect((err) => {
 });
 
 
-// 3. MIDDLEWARE
-// ==========================================
-// Configurar o body-parser para lidar com dados de formulário
-app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // Configurar a sessão
 app.use(session({
@@ -95,9 +184,19 @@ app.use(session({
 // 4. ROTAS PÚBLICAS (Login, Registro, Páginas Iniciais)
 // =======================================================
 
-// Rota para servir a página de login/registro
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'SITE_CADEIRA_ES', 'index.html'));
+});
+
+// app.get('/sign-in', (req, res) => {
+//   res.sendFile(path.join(__dirname, '/public/sign-in/page.html'));
+// });
+
+// app.get('/register');
+
+// Rota para servir a página de login/registro
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 // Rota para o registro de novos usuários
@@ -112,7 +211,7 @@ app.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const sql = 'INSERT INTO users (email, password) VALUES (?, ?)';
 
-        db.query(sql, [email, hashedPassword], (err, result) => {
+        dataBase.query(sql, [email, hashedPassword], (err, result) => {
             if (err) {
                 console.error('ERRO AO INSERIR NO BANCO DE DADOS:', err);
                 return res.status(500).send('Erro ao registrar o usuário. O email já pode estar em uso.');
@@ -136,7 +235,7 @@ app.post('/login', (req, res) => {
 
     const sql = 'SELECT * FROM users WHERE email = ?';
 
-    db.query(sql, [email], async (err, results) => {
+    dataBase.query(sql, [email], async (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).send('Erro no servidor.');
@@ -198,7 +297,7 @@ app.post('/verify-2fa-login', (req, res) => {
     }
 
     const sql = 'SELECT * FROM users WHERE id = ?';
-    db.query(sql, [userId], (err, results) => {
+    dataBase.query(sql, [userId], (err, results) => {
         if (err || results.length === 0) {
             return res.status(500).send('Erro ao buscar usuário.');
         }
@@ -293,7 +392,7 @@ app.post('/verify-2fa-setup', isAuthenticated, (req, res) => {
 
     if (verified) {
         const sql = 'UPDATE users SET two_factor_secret = ?, is_two_factor_enabled = TRUE WHERE id = ?';
-        db.query(sql, [secret, req.session.userId], (err, result) => {
+        dataBase.query(sql, [secret, req.session.userId], (err, result) => {
             if (err) {
                 return res.status(500).send('Erro ao salvar configuração.');
             }
@@ -314,7 +413,7 @@ app.post('/disable-2fa', isAuthenticated, (req, res) => { // Removido o 'async' 
     }
 
     const getUserSql = 'SELECT * FROM users WHERE id = ?';
-    db.query(getUserSql, [userId], async (err, results) => { // o 'async' aqui é o importante
+    dataBase.query(getUserSql, [userId], async (err, results) => { // o 'async' aqui é o importante
         if (err || results.length === 0) {
             return res.status(500).send('Erro ao encontrar o usuário.');
         }
@@ -329,7 +428,7 @@ app.post('/disable-2fa', isAuthenticated, (req, res) => { // Removido o 'async' 
             
             // ... resto do código continua igual ...
             const disable2FASql = 'UPDATE users SET is_two_factor_enabled = FALSE, two_factor_secret = NULL WHERE id = ?';
-            db.query(disable2FASql, [userId], (disableErr, disableResult) => {
+            dataBase.query(disable2FASql, [userId], (disableErr, disableResult) => {
                 if (disableErr) {
                     return res.status(500).send('Erro ao desativar a 2FA no banco de dados.');
                 }

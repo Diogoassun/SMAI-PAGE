@@ -1,0 +1,10 @@
+npm install express
+npm install jsonwebtoken
+npm install mysql2
+npm install dotenv
+npm install body-parser
+npm install bcrypt
+npm install express-session
+npm install speakeasy
+npm install qrcode
+npm install path
