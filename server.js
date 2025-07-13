@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
 import mysql from 'mysql2'
 // const db = require('./mysql'); // Este arquivo ainda lida com a conexão do DB
-// import axios from 'axios'
+import axios from 'axios'
 import bodyParser from 'body-parser'
 import session from 'express-session'
 import speakeasy from 'speakeasy'
@@ -17,6 +17,7 @@ import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 
 
+import cookieParser from 'cookie-parser';
 
 import authRouter from './routes/authRoutes.js';
 
@@ -57,12 +58,26 @@ app.use(logger);
 // Configurar o body-parser para lidar com dados de formulário
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser()); // Middleware para interpretar cookies
 
 // ROTA DE TESTE
 const users = [
     {id: 1, username: 'leo', password: '123456', role: 'admin'},
     {id: 2, username: 'oel', password: '654321', role: 'user'}
 ]
+
+
+/**/
+/**/
+/**/
+/**/
+/**/
+/**/
+/**/
+/**/
+/**/
+/**/
+/**/
 
 // ROTA ENVIAR
 
@@ -199,24 +214,19 @@ app.use(session({
     }
 }));
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'SITE_CADEIRA_ES', 'index.html'));
+});
 
 // 4. ROTAS PÚBLICAS (Login, Registro, Páginas Iniciais)
 // =======================================================
 /*
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'SITE_CADEIRA_ES', 'index.html'));
-});
 
 // app.get('/sign-in', (req, res) => {
 //   res.sendFile(path.join(__dirname, '/public/sign-in/page.html'));
 // });
 
 // app.get('/register');
-
-// Rota para servir a página de login/registro
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
-});
 
 // Rota para o registro de novos usuários
 app.post('/register', async (req, res) => {
@@ -242,6 +252,12 @@ app.post('/register', async (req, res) => {
         console.error('ERRO NO BCRYPT:', error);
         res.status(500).send('Erro interno no servidor.');
     }
+});
+*/
+
+// Rota para servir a página de login/registro
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 // Rota para o processo de login (LÓGICA CORRIGIDA)
@@ -274,11 +290,13 @@ app.post('/login', (req, res) => {
         // LÓGICA CORRIGIDA E SIMPLIFICADA
         if (user.is_two_factor_enabled) {
             req.session.pending_2fa_userId = user.id;
-            res.redirect('/enter-2fa-token');
+            res.json({ success: true, requires2FA: true, redirectTo: '/enter-2fa-token' });
+            // res.redirect('/enter-2fa-token');
         } else {
             req.session.userId = user.id;
             req.session.userEmail = user.email;
-            res.redirect('/dashboard');
+            res.json({ success: true, requires2FA: false, redirectTo: '/dashboard' });
+            // res.redirect('/dashboard');
         }
         // O CÓDIGO CONFLITANTE QUE ESTAVA AQUI FOI REMOVIDO
     });
@@ -291,7 +309,7 @@ app.get('/logout', (req, res) => {
             return res.redirect('/dashboard');
         }
         res.clearCookie('connect.sid');
-        res.redirect('/');
+        res.redirect('/sign-in');
     });
 });
 
@@ -301,7 +319,7 @@ app.get('/logout', (req, res) => {
 // Página que pede o token 2FA
 app.get('/enter-2fa-token', (req, res) => {
     if (!req.session.pending_2fa_userId) {
-        return res.redirect('/');
+        return res.redirect('/erro');
     }
     res.sendFile(__dirname + '/2fa-token-page.html');
 });
@@ -460,7 +478,7 @@ app.post('/disable-2fa', isAuthenticated, (req, res) => { // Removido o 'async' 
         }
     });
 });
-*/
+
 
 /*
 *
@@ -539,72 +557,83 @@ app.use(session({
 
 
 // Rota home/login
-app.get('/', (req, res) => {
+app.get('/sign-in', (req, res) => {
   if (req.session.email) {
     return res.render('logado', { email: req.session.email });
   }
-  res.render('public/index', { erro: null, query: req.query || {} });
+  res.render('public/sign-in', { erro: null, query: req.query || {} });
 });
 
 
 // Rota de Login com Criptografia
-app.post('/', async (req, res) => {
-  const { email, password, 'g-recaptcha-response': captcha } = req.body;
-  if (!captcha) return res.render('index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
-
-  try {
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CONFIG.RECAPTCHA_SECRET}&response=${captcha}`;
-    const response = await axios.post(verifyUrl);
-    if (!response.data.success) return res.render('index', { erro: 'Falha na verificação do reCAPTCHA.', query: {} });
-
-    const emailHash = crypto.createHash('sha256').update(email).digest('hex');
-    const [rows] = await dataBase.execute('SELECT * FROM users WHERE email_hash = ?', [emailHash]);
-
-    if (rows.length > 0) {
-      const user = rows[0];
-      const match = await bcrypt.compare(password, user.password);
-
-      if (match) {
-        const decryptedEmail = decrypt(user.email);
-        if (user.two_factor_enabled) {
-          const codigo = Math.floor(100000 + Math.random() * 900000);
-          req.session.pendingUser = decryptedEmail;
-          req.session.verificationCode = codigo;
-          req.session.verificationExpires = Date.now() + 5 * 60 * 1000;
-          await enviarEmail(decryptedEmail, 'Código de Verificação 2FA', `Seu código de verificação é: ${codigo}`);
-          return res.redirect('/verify-2fa');
-        }
-        req.session.email = decryptedEmail;
-        return res.render('logado', { email: decryptedEmail });
-      }
+app.post('/sign-in', async (req, res) => {
+    const { email, password, 'g-recaptcha-response': captcha } = req.body;
+    
+    if (!captcha) {
+        // return res.render('public/index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
+        return res.json({ success: false, requires2FA: false, redirectTo: '', render: false, message: 'Por favor, confirme que você não é um robô.', query: {} });
     }
-    return res.render('index', { erro: 'E-mail ou senha incorretos', query: {} });
 
-  } catch (err) {
-    console.error('Erro no login:', err.message);
-    return res.status(500).send('Erro no servidor durante o login.');
-  }
+    try {
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CONFIG.RECAPTCHA_SECRET}&response=${captcha}`;
+        const response = await axios.post(verifyUrl);
+        if (!response.data.success) {
+            // res.render('index');
+            return res.json({ success: false, requires2FA: false, redirectTo: 'index', render: true, message: 'Falha na verificação do reCAPTCHA.', query: {} });
+        }
+        const emailHash = crypto.createHash('sha256').update(email).digest('hex');
+        const [rows] = await dataBase.execute('SELECT * FROM users WHERE email_hash = ?', [emailHash]);
+
+        if (rows.length > 0) {
+            const user = rows[0];
+            const match = await bcrypt.compare(password, user.password);
+
+        if (match) {
+            const decryptedEmail = decrypt(user.email);
+            if (user.two_factor_enabled) {
+                const codigo = Math.floor(100000 + Math.random() * 900000);
+                req.session.pendingUser = decryptedEmail;
+                req.session.verificationCode = codigo;
+                req.session.verificationExpires = Date.now() + 5 * 60 * 1000;
+                await enviarEmail(decryptedEmail, 'Código de Verificação 2FA', `Seu código de verificação é: ${codigo}`);
+                // return res.redirect('/verify-2fa');
+                return res.json({ success: true, requires2FA: true, redirectTo: '/verify-2fa', render: true, message: '' });
+            }
+            req.session.email = decryptedEmail;
+            // return res.render('logado', { email: decryptedEmail });
+            return res.json({ email: decryptedEmail, success: true, requires2FA: false, redirectTo: '/logado', message: ''});
+        }
+    }
+    // return res.render('tindex', { erro: 'E-mail ou senha incorretos', query: {} });
+    return res.json({ success: false, requires2FA: false, redirectTo: 'index', render: true, message: 'E-mail ou senha incorretos', query: {} });
+
+    } catch (err) {
+        console.error('Erro no login:', err.message);
+        return res.status(500).send('Erro no servidor durante o login.');
+    }
 });
 
 
 // Rota registro GET
-app.get('/register', (req, res) => res.render('register'));
+app.get('/register', (req, res) => {
+    res.render('public/register');
+});
 
 
 // Rota de Registro com Criptografia
 app.post('/register', async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) return res.status(400).send('Preencha o e-mail e a senha');
-  
+  if (!email || !password) return res.status(400).json({message:'Preencha o e-mail e a senha'});
+  console.log(email, password);
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!emailValido) return res.status(400).send('Formato de e-mail inválido');
+  if (!emailValido) return res.status(400).json({ message: 'Formato de e-mail inválido'});
 
   try {
     const response = await axios.get('http://apilayer.net/api/check', {
       params: { access_key: CONFIG.MAILBOX_API_KEY, email, smtp: 1, format: 1 }
     });
     if (!response.data.format_valid || !response.data.mx_found || response.data.disposable) {
-      return res.status(400).send('Este endereço de e-mail não é válido ou não é permitido.');
+      return res.status(400).json({ message: 'Este endereço de e-mail não é válido ou não é permitido.'});
     }
 
     const saltRounds = 10;
@@ -618,13 +647,13 @@ app.post('/register', async (req, res) => {
     );
 
     await enviarEmail(email, 'Bem-vindo!', 'Seu cadastro foi realizado com sucesso!');
-    res.redirect('/?cadastro=sucesso');
+    return res.json({ message: '/?cadastro=sucesso' });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
-      return res.status(409).send('Este e-mail já está cadastrado');
+      return res.status(409).json({ message: 'Este e-mail já está cadastrado'});
     }
     console.error('Erro ao cadastrar:', err.message);
-    res.status(500).send('Erro ao cadastrar usuário');
+    return res.status(500).json({ message: 'Erro ao cadastrar usuário'});
   }
 });
 
@@ -633,7 +662,7 @@ app.post('/register', async (req, res) => {
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) return res.status(500).send('Não foi possível fazer logout.');
-    res.redirect('/');
+    res.redirect('/sign-in');
   });
 });
 
@@ -832,6 +861,7 @@ app.use((request, response, next) => {
 // ==========================================
 app.listen({
     host: '0.0.0.0',
+    // port: 3333
     port: process.env.PORT
 }, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);

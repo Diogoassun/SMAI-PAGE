@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro</title>
+  <link rel="stylesheet" href="/css/style-register.css">
+</head>
+<body>
+
+  <div id='message'>
+  </div>
+
+  <form id='register-form'>
+    <h2>Cadastro</h2>
+    <input type="email" name="email" placeholder="E-mail" required><br>
+    <input type="password" name="password" placeholder="Senha" required><br>
+    <button type="submit">Cadastrar</button>
+    <p>Já tem conta? <a href="/">Faça login</a></p>
+  </form>
+
+  <script>
+      const form = document.getElementById('register-form');
+      const messageDiv = document.getElementById('message');
+
+      form.addEventListener('submit', async (event) => {
+          // 1. Impede o recarregamento da página
+          event.preventDefault();
+
+          // 2. Pega os dados do formulário
+          const email = event.target.email.value;
+          const password = event.target.password.value;
+
+          try {
+              // 3. Usa o Fetch para enviar os dados como JSON
+              const response = await fetch('/register', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json' // Informa que estamos enviando JSON
+                  },
+                  body: JSON.stringify({ email, password }) // Converte o objeto para string JSON
+              });
+
+              const data = await response.json();
+              console.log('teste');
+              
+              if(data.message) {
+                messageDiv.textContent = data.message;
+                //  + data.accessToken;
+              }
+
+              // if (response.ok && data.sucess) {
+                  
+              //     // Verifica se existe um parâmetro 'redirectUrl' na URL atual
+              //     const urlParams = new URLSearchParams(window.location.search);
+              //     const redirectUrl = urlParams.get('redirectUrl');
+
+              //     if (redirectUrl) {
+              //         // Se houver, redireciona de volta para a página original
+              //         window.location.href = redirectUrl;
+              //         // Aqui você guardaria o token e redirecionaria o usuário
+              //     } else {
+              //         // Se não, vai para o dashboard padrão
+              //         window.location.href = 'testst';
+              //     }
+              // } 
+              // else {
+              //     messageDiv.textContent = data.message;
+              // }
+          } catch (error) {
+              messageDiv.textContent = 'Erro de conexão com o servidor.';
+              console.error('Erro no fetch:', error);
+          }
+      });
+  </script>
+</body>
+</html>

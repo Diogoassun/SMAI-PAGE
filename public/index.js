@@ -5,7 +5,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 const axios = require('axios');
-const db = require('./mysql'); // Este arquivo ainda lida com a conexão do DB
+const dataBase = require('./mysql'); // Este arquivo ainda lida com a conexão do DB
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
@@ -83,23 +83,24 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 
 // Rota home/login
-app.get('/', (req, res) => {
+app.get('/sign-in', (req, res) => {
   if (req.session.email) {
     return res.render('logado', { email: req.session.email });
   }
+  // res.sendFile(__dirname + '/index.html');
   res.render('index', { erro: null, query: req.query || {} });
 });
 
 
 // Rota de Login com Criptografia
-app.post('/', async (req, res) => {
+app.post('/sign-in', async (req, res) => {
   const { email, password, 'g-recaptcha-response': captcha } = req.body;
-  if (!captcha) return res.render('index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
+  if (captcha) return res.render('index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
 
   try {
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CONFIG.RECAPTCHA_SECRET}&response=${captcha}`;
     const response = await axios.post(verifyUrl);
-    if (!response.data.success) return res.render('index', { erro: 'Falha na verificação do reCAPTCHA.', query: {} });
+    if (response.data.success) return res.render('index', { erro: 'Falha na verificação do reCAPTCHA.', query: {} });
 
     const emailHash = crypto.createHash('sha256').update(email).digest('hex');
     const [rows] = await dataBase.execute('SELECT * FROM users WHERE email_hash = ?', [emailHash]);
@@ -116,10 +117,12 @@ app.post('/', async (req, res) => {
           req.session.verificationCode = codigo;
           req.session.verificationExpires = Date.now() + 5 * 60 * 1000;
           await enviarEmail(decryptedEmail, 'Código de Verificação 2FA', `Seu código de verificação é: ${codigo}`);
-          return res.redirect('/verify-2fa');
+          // return res.redirect('/verify-2fa');
+          return res.json({ success: true, requires2FA: true, redirectTo: '/verify-2fa' });
         }
         req.session.email = decryptedEmail;
-        return res.render('logado', { email: decryptedEmail });
+        // return res.render('logado', { email: decryptedEmail });
+        return  res.json({ email: decryptedEmail, success: true, requires2FA: false, redirectTo: '/dashboard' });
       }
     }
     return res.render('index', { erro: 'E-mail ou senha incorretos', query: {} });
@@ -141,7 +144,7 @@ app.post('/register', async (req, res) => {
   if (!email || !password) return res.status(400).send('Preencha o e-mail e a senha');
   
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!emailValido) return res.status(400).send('Formato de e-mail inválido');
+  if (!emailValido) return res.status(400).j('Formato de e-mail inválido');
 
   try {
     const response = await axios.get('http://apilayer.net/api/check', {

@@ -32,6 +32,47 @@
 </form>
 <div id="message"></div>
 
+<form id="api-form">
+    <div>
+        <label for="api-email">Email:</label>
+        <input type="email" id="api-email" name="email" required>
+    </div>
+    <div>
+        <label for="api-senha">Senha:</label>
+        <input type="password" id="api-senha" name="password" required>
+    </div>
+    <button type="submit">Entrar</button>
+</form>
+
+<script>
+    
+    const api_form = document.getElementById('api-form');
+    api_form.addEventListener('submit', async (event) => {
+        // 1. Impede o recarregamento da página
+        event.preventDefault();
+
+        // 2. Pega os dados do formulário
+        const email = event.target.email.value;
+        const password = event.target.password.value;
+
+        try {
+            // 3. Usa o Fetch para enviar os dados como JSON
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Informa que estamos enviando JSON
+                },
+                body: JSON.stringify({ email, password }) // Converte o objeto para string JSON
+            });
+
+            const data = await response.json();
+            console.log(data);
+        } catch (error) {
+            console.error('Erro no fetch api:', error);
+        }
+    });
+</script>
+
 <script>
     const form = document.getElementById('login-form');
     const messageDiv = document.getElementById('message');
@@ -68,9 +109,9 @@
                 if (redirectUrl) {
                     // Se houver, redireciona de volta para a página original
                     window.location.href = redirectUrl;
+                    // Aqui você guardaria o token e redirecionaria o usuário
                 } else {
                     // Se não, vai para o dashboard padrão
-                    // Aqui você guardaria o token e redirecionaria o usuário
                     window.location.href = '/dashboard';
                 }
             } else {
