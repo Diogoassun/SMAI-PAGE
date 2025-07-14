@@ -19,7 +19,7 @@ const CONFIG = {
   PORT: process.env.PORT || 3001,
   GMAIL_USER: 'bandeiradiogo96@gmail.com',
   GMAIL_PASS: 'hwbk edim tmwb lxmv', // Use senha de app do Google
-  MAILBOX_API_KEY: 'e37b7fc9c000be253433294d102f9622',
+  MAILBOX_API_KEY: 'f3ccded3c8744f58a0200ae957b612c6',
   RECAPTCHA_SECRET: '6Lc5KYIrAAAAAPmBTtvf9dgByVZLTKfVmi5HSSXd',
   SESSION_SECRET: 'mysecretkey_super_secreta_e_dificil',
   CRYPTO_SECRET_KEY: 'c8b7a695e4d3c2b1a09876543210fedcba9876543210fedcba9876543210feab',
