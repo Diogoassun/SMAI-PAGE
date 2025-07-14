@@ -550,7 +550,7 @@ app.post('/sign-in', async (req, res) => {
     
     if (!captcha) {
         // return res.render('public/index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
-        return res.json({ success: false, requires2FA: false, redirectTo: '', render: false, message: 'Por favor, confirme que você não é um robô.', query: {} });
+        return res.json({ success: false, requires2FA: false, redirectTo: 'public/index', render: false, message: 'Por favor, confirme que você não é um robô.', query: {} });
     }
 
     try {
