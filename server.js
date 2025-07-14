@@ -35,6 +35,25 @@ const dbConfig = {
   port: process.env.DB_PORT || 3306,
 };
 
+const dbConfigArCondicionado = {
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: 'ar_condicionado',
+  port: process.env.DB_PORT || 3306,
+};
+
+async function queryArCondicionado(sql, params) {
+  const connection = await mysql.createConnection(dbConfigArCondicionado);
+  try {
+    const [results] = await connection.execute(sql, params);
+    return results;
+  } finally {
+    await connection.end();
+  }
+}
+
+
 // Função para query simplificada com conexão automática
 async function query(sql, params) {
   const connection = await mysql.createConnection(dbConfig);
@@ -113,7 +132,7 @@ app.get('/', (req, res) => {
 // Buscar marcas
 app.get('/api/marcas', async (req, res) => {
   try {
-    const rows = await query('SELECT id, nome FROM marcas ORDER BY nome ASC');
+    const rows = await queryArCondicionado('SELECT id, nome FROM marcas ORDER BY nome ASC');
     res.json(rows);
   } catch (err) {
     console.error('Erro ao buscar marcas:', err);
@@ -127,7 +146,7 @@ app.get('/api/modelos', async (req, res) => {
   if (!marcaId) return res.status(400).json({ error: 'O ID da marca é obrigatório.' });
 
   try {
-    const rows = await query('SELECT id, nome FROM modelos WHERE marca_id = ? ORDER BY nome ASC', [marcaId]);
+    const rows = await queryArCondicionado('SELECT id, nome FROM modelos WHERE marca_id = ? ORDER BY nome ASC', [marcaId]);
     res.json(rows);
   } catch (err) {
     console.error('Erro ao buscar modelos:', err);
