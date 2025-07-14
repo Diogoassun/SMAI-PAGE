@@ -548,7 +548,7 @@ app.get('/sign-in', (req, res) => {
 app.post('/sign-in', async (req, res) => {
     const { email, password, 'g-recaptcha-response': captcha } = req.body;
     
-    if (captcha) {
+    if (!captcha) {
         // return res.render('public/index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
         return res.json({ success: false, requires2FA: false, redirectTo: '', render: false, message: 'Por favor, confirme que você não é um robô.', query: {} });
     }
@@ -556,7 +556,7 @@ app.post('/sign-in', async (req, res) => {
     try {
         const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CONFIG.RECAPTCHA_SECRET}&response=${captcha}`;
         const response = await axios.post(verifyUrl);
-        if (response.data.success) {
+        if (!response.data.success) {
             // res.render('index');
             return res.json({ success: false, requires2FA: false, redirectTo: 'index', render: true, message: 'Falha na verificação do reCAPTCHA.', query: {} });
         }
