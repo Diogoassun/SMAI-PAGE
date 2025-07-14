@@ -2,11 +2,8 @@ import express from 'express'
 import path from 'path'
 import {fileURLToPath} from 'url'
 import jwt from 'jsonwebtoken'
-
 import dotenv from 'dotenv'
-dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
 import mysql from 'mysql2'
-// const db = require('./mysql'); // Este arquivo ainda lida com a conexão do DB
 import axios from 'axios'
 import bodyParser from 'body-parser'
 import session from 'express-session'
@@ -15,56 +12,74 @@ import QRCode from 'qrcode'
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-
-
 import cookieParser from 'cookie-parser';
 
 import authRouter from './routes/authRoutes.js';
 
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
 const app = express();
 
 app.set('trust proxy', 1);
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 app.use(express.static(path.join(__dirname, '/public')));
 // app.use('public', express.static(path.join(__dirname, '/public')));
 
-// rota estática
+dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
+// -------------------------------------------------------------
 
-/*
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    // ... o resto da sua configuração de sessão
+    resave: false,
+    // saveUninitialized: true
+    saveUninitialized: false, // Alterado para false, boa prática para não salvar sessões vazias
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // Em produção (HTTPS), será true. Em dev (HTTP), false.
+        httpOnly: true // Ajuda a prevenir ataques XSS
+    }
 }));
-*/
+// -------------------------------------------------------------
 
-// Middleware de Logger
 const logger = (req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next(); // Essencial! Passa para o próximo da fila.
 };
-
-// Use o middleware na sua aplicação
 app.use(logger);
+// -------------------------------------------------------------
 
-
-// 3. MIDDLEWARE
-// ==========================================
-// Configurar o body-parser para lidar com dados de formulário
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser()); // Middleware para interpretar cookies
+// -------------------------------------------------------------
 
-// ROTA DE TESTE
+const CONFIG = {
+  PORT: process.env.PORT,
+  GMAIL_USER: process.env.GMAIL_USER,
+  GMAIL_PASS: process.env.GMAIL_PASS,
+  MAILBOX_API_KEY: process.env.MAILBOX_API_KEY,
+  RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET,
+  SESSION_SECRET: process.env.SESSION_SECRET,
+  // Gere suas próprias chaves! Não use estas.
+  CRYPTO_SECRET_KEY: process.env.CRYPTO_SECRET_KEY,
+  CRYPTO_IV: process.env.CRYPTO_IV
+};
+// -------------------------------------------------------------
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: CONFIG.GMAIL_USER,
+        pass: CONFIG.GMAIL_PASS
+    }
+});
+// -------------------------------------------------------------
+
 const users = [
     {id: 1, username: 'leo', password: '123456', role: 'admin'},
     {id: 2, username: 'oel', password: '654321', role: 'user'}
 ]
+// -------------------------------------------------------------
 
 
 /**/
@@ -170,17 +185,9 @@ app.get('/about', (resquest, response) => {
     return response.send('<h1>about</h1>')
 })
 
-// app.listen({
-//     host: '0.0.0.0',
-//     port: 3333
-// })
-
-
 /* <----> */
 // 1. IMPORTAÇÕES E CONFIGURAÇÃO INICIAL
 // ==========================================
-
-const port = process.env.PORT;
 
 // 2. CONFIGURAÇÃO DO BANCO DE DADOS (APENAS UMA VEZ!)
 // ====================================================
@@ -192,27 +199,27 @@ const dataBase = mysql.createConnection({
 });
 
 // Conectar ao banco de dados
-dataBase.connect((err) => {
-  if (err) {
-    console.error('!!!!!!!!!! ERRO AO CONECTAR AO BANCO DE DADOS !!!!!!!!!!');
-    throw err;
-  }
-  console.log('Conectado ao banco de dados MySQL no AWS RDS!');
-});
+// dataBase.connect((err) => {
+//   if (err) {
+//     console.error('!!!!!!!!!! ERRO AO CONECTAR AO BANCO DE DADOS !!!!!!!!!!');
+//     throw err;
+//   }
+//   console.log('Conectado ao banco de dados MySQL no AWS RDS!');
+// });
 
 
 
 
 // Configurar a sessão
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false, // Alterado para false, boa prática para não salvar sessões vazias
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production', // Em produção (HTTPS), será true. Em dev (HTTP), false.
-        httpOnly: true // Ajuda a prevenir ataques XSS
-    }
-}));
+// app.use(session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false, // Alterado para false, boa prática para não salvar sessões vazias
+//     cookie: { 
+//         secure: process.env.NODE_ENV === 'production', // Em produção (HTTPS), será true. Em dev (HTTP), false.
+//         httpOnly: true // Ajuda a prevenir ataques XSS
+//     }
+// }));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'SITE_CADEIRA_ES', 'index.html'));
@@ -492,28 +499,7 @@ app.post('/disable-2fa', isAuthenticated, (req, res) => { // Removido o 'async' 
 
 // --- BLOCO DE CONFIGURAÇÃO (NÃO RECOMENDADO PARA PRODUÇÃO) ---
 // Substitua todos os valores abaixo pelos seus.
-const CONFIG = {
-  PORT: process.env.PORT,
-  GMAIL_USER: process.env.GMAIL_USER,
-  GMAIL_PASS: process.env.GMAIL_PASS,
-  MAILBOX_API_KEY: process.env.MAILBOX_API_KEY,
-  RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET,
-  SESSION_SECRET: process.env.SESSION_SECRET,
-  // Gere suas próprias chaves! Não use estas.
-  CRYPTO_SECRET_KEY: process.env.CRYPTO_SECRET_KEY,
-  CRYPTO_IV: process.env.CRYPTO_IV
-};
-// -------------------------------------------------------------
 
-// const port = CONFIG.PORT || 3000;
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: CONFIG.GMAIL_USER,
-    pass: CONFIG.GMAIL_PASS
-  }
-});
 
 // Configuração e Funções de Criptografia
 const ALGORITHM = 'aes-256-cbc';
@@ -549,13 +535,6 @@ async function enviarEmail(destinatario, assunto, mensagem) {
   }
 }
 
-app.use(session({
-  secret: CONFIG.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true
-}));
-
-
 // Rota home/login
 app.get('/sign-in', (req, res) => {
   if (req.session.email) {
@@ -569,7 +548,7 @@ app.get('/sign-in', (req, res) => {
 app.post('/sign-in', async (req, res) => {
     const { email, password, 'g-recaptcha-response': captcha } = req.body;
     
-    if (!captcha) {
+    if (captcha) {
         // return res.render('public/index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
         return res.json({ success: false, requires2FA: false, redirectTo: '', render: false, message: 'Por favor, confirme que você não é um robô.', query: {} });
     }
@@ -577,12 +556,14 @@ app.post('/sign-in', async (req, res) => {
     try {
         const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CONFIG.RECAPTCHA_SECRET}&response=${captcha}`;
         const response = await axios.post(verifyUrl);
-        if (!response.data.success) {
+        if (response.data.success) {
             // res.render('index');
             return res.json({ success: false, requires2FA: false, redirectTo: 'index', render: true, message: 'Falha na verificação do reCAPTCHA.', query: {} });
         }
         const emailHash = crypto.createHash('sha256').update(email).digest('hex');
+        console.log('veio');
         const [rows] = await dataBase.execute('SELECT * FROM users WHERE email_hash = ?', [emailHash]);
+        console.log('oassou');
 
         if (rows.length > 0) {
             const user = rows[0];
@@ -860,9 +841,9 @@ app.use((request, response, next) => {
 // 7. INICIAR O SERVIDOR
 // ==========================================
 app.listen({
-    host: '0.0.0.0',
-    // port: 3333
-    port: process.env.PORT
+    // host: '0.0.0.0',
+    port: 3333
+    // port: process.env.PORT
 }, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`Servidor rodando em http://localhost:${process.env.PORT}`);
 });
