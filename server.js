@@ -35,24 +35,6 @@ const dbConfig = {
   port: process.env.DB_PORT || 3306,
 };
 
-const dbConfigArCondicionado = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: 'ar_condicionado',
-  port: process.env.DB_PORT || 3306,
-};
-
-async function queryArCondicionado(sql, params) {
-  const connection = await mysql.createConnection(dbConfigArCondicionado);
-  try {
-    const [results] = await connection.execute(sql, params);
-    return results;
-  } finally {
-    await connection.end();
-  }
-}
-
 
 // Função para query simplificada com conexão automática
 async function query(sql, params) {
@@ -131,12 +113,32 @@ app.get('/', (req, res) => {
 
 // Buscar marcas
 app.get('/api/marcas', async (req, res) => {
+  // Declara a variável de conexão aqui para que seja acessível em todo o bloco
+  let connection; 
+
   try {
-    const rows = await queryArCondicionado('SELECT id, nome FROM marcas ORDER BY nome ASC');
+    // 1. Criar a conexão com o banco de dados
+    connection = await mysql.createConnection(dbConfig);
+    console.log("Conexão com o MySQL estabelecida com sucesso!");
+
+    // 2. Definir e executar a consulta SQL
+    const sql = 'SELECT id, nome FROM marcas ORDER BY nome ASC';
+    const [rows] = await connection.execute(sql);
+
+    // 3. Enviar os resultados de volta como JSON
     res.json(rows);
+
   } catch (err) {
-    console.error('Erro ao buscar marcas:', err); // Já mostra o erro completo
+    // Se ocorrer um erro, registre-o no console
+    console.error('Erro ao buscar marcas:', err);
     res.status(500).json({ error: 'Erro ao buscar dados das marcas.' });
+
+  } finally {
+    // 4. Garantir que a conexão seja sempre fechada
+    if (connection) {
+      await connection.end();
+      console.log("Conexão com o MySQL fechada.");
+    }
   }
 });
 
@@ -146,7 +148,7 @@ app.get('/api/modelos', async (req, res) => {
   if (!marcaId) return res.status(400).json({ error: 'O ID da marca é obrigatório.' });
 
   try {
-    const rows = await queryArCondicionado('SELECT id, nome FROM modelos WHERE marca_id = ? ORDER BY nome ASC', [marcaId]);
+    const rows = await query('SELECT id, nome FROM modelos WHERE marca_id = ? ORDER BY nome ASC', [marcaId]);
     res.json(rows);
   } catch (err) {
     console.error('Erro ao buscar modelos:', err);
@@ -409,7 +411,6 @@ app.post('/reset/:token', async (req, res) => {
     res.status(500).send('Erro ao redefinir senha.');
   }
 });
-
 
 // --- Iniciar servidor ---
 app.listen(PORT, () => {
