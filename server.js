@@ -361,9 +361,9 @@ app.post('/reset/:token', async (req, res) => {
   const { token } = req.params;
   const { password, confirmPassword } = req.body;
 
-  if (password !== confirmPassword) {
-    return res.render('reset', { erro: 'As senhas não coincidem.', token });
-  }
+ // if (password !== confirmPassword) {
+  //  return res.render('reset', { erro: 'As senhas não coincidem.', token });
+ // }
 
   try {
     const rows = await query(
