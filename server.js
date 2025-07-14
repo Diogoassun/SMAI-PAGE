@@ -135,7 +135,7 @@ app.get('/api/marcas', async (req, res) => {
     const rows = await queryArCondicionado('SELECT id, nome FROM marcas ORDER BY nome ASC');
     res.json(rows);
   } catch (err) {
-    console.error('Erro ao buscar marcas:', err);
+    console.error('Erro ao buscar marcas:', err); // Já mostra o erro completo
     res.status(500).json({ error: 'Erro ao buscar dados das marcas.' });
   }
 });
@@ -409,6 +409,7 @@ app.post('/reset/:token', async (req, res) => {
     res.status(500).send('Erro ao redefinir senha.');
   }
 });
+
 
 // --- Iniciar servidor ---
 app.listen(PORT, () => {
