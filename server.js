@@ -20,7 +20,7 @@ const CONFIG = {
   GMAIL_USER: 'bandeiradiogo96@gmail.com',
   GMAIL_PASS: 'hwbk edim tmwb lxmv', // Use senha de app do Google
   MAILBOX_API_KEY: 'e37b7fc9c000be253433294d102f9622',
-  RECAPTCHA_SECRET: '6Leu9H4rAAAAAHlL0O_fcrJe4i1AgaXW_tPjduUs',
+  RECAPTCHA_SECRET: '6Lc5KYIrAAAAAPmBTtvf9dgByVZLTKfVmi5HSSXd',
   SESSION_SECRET: 'mysecretkey_super_secreta_e_dificil',
   CRYPTO_SECRET_KEY: 'c8b7a695e4d3c2b1a09876543210fedcba9876543210fedcba9876543210feab',
   CRYPTO_IV: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'
