@@ -276,7 +276,32 @@
       sidebar.classList.add('hide');
     }
   });
-
+  const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li');
+    const currentPath = window.location.pathname.split("/").pop();
+    allSideMenu.forEach(item => {
+        const a = item.querySelector('a');
+        if (a && a.href.includes(currentPath)) {
+            allSideMenu.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+        }
+    });
+    
+  const switchMode = document.getElementById('switch-mode');
+    if (switchMode) {
+        if (localStorage.getItem('darkMode') === 'true') {
+            switchMode.checked = true;
+            document.body.classList.add('dark');
+        }
+        switchMode.addEventListener('change', function () {
+            if (this.checked) {
+                document.body.classList.add('dark');
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                document.body.classList.remove('dark');
+                localStorage.setItem('darkMode', 'false');
+            }
+        });
+    }
 </script>
 
 
