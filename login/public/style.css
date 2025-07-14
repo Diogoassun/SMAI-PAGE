@@ -14,8 +14,10 @@ body {
   align-items: center;
 }
 
-/* Container do formulário */
-form {
+/* ALTERAÇÃO 1: O seletor 'form' foi trocado por '.login-wrapper'.
+  Agora estilizamos a DIV que envolve tudo.
+*/
+.login-wrapper {
   background-color: #fff;
   padding: 30px 40px;
   border-radius: 12px;
@@ -23,32 +25,41 @@ form {
   width: 100%;
   max-width: 400px;
   text-align: center;
+  
+  /* ALTERAÇÃO 2: Adicionado para empilhar os itens verticalmente */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* ALTERAÇÃO 3: Seletores foram atualizados para serem mais específicos, 
+  referenciando os elementos DENTRO do .login-wrapper.
+*/
+
 /* Título */
-form h2 {
+.login-wrapper h2 {
   margin-bottom: 20px;
   color: #333;
 }
 
 /* Inputs */
-form input {
+.login-wrapper input {
   width: 100%;
   padding: 12px;
-  margin: 10px 0;
+  margin-bottom: 1rem; /* Usando margin-bottom em vez de margin para consistência */
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 16px;
   transition: 0.2s;
 }
 
-form input:focus {
+.login-wrapper input:focus {
   border-color: #667eea;
   outline: none;
 }
 
 /* Botão */
-form button {
+.login-wrapper button {
   width: 100%;
   padding: 12px;
   background-color: #667eea;
@@ -60,30 +71,44 @@ form button {
   transition: 0.3s;
 }
 
-form button:hover {
+.login-wrapper button:hover {
   background-color: #5a67d8;
 }
 
 /* Link de cadastro */
-form p {
+.login-wrapper p {
   margin-top: 15px;
   font-size: 14px;
 }
 
-form a {
+.login-wrapper a {
   color: #667eea;
   text-decoration: none;
   font-weight: bold;
 }
 
-form a:hover {
+.login-wrapper a:hover {
   text-decoration: underline;
 }
 
-/* Mensagens */
+/* Mensagens de sucesso e erro */
 .mensagem-sucesso,
 .mensagem-erro {
-  width: 100%;
+  width: 100%; /* Garante que a mensagem ocupe toda a largura do wrapper */
   font-size: 15px;
   margin-bottom: 15px;
+  padding: 10px; /* Adicionado um padding para melhor visual */
+  border-radius: 5px;
+}
+
+.mensagem-sucesso {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.mensagem-erro {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }

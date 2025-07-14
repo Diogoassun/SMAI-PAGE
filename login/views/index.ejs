@@ -28,26 +28,27 @@
 </head>
 <body>
 
-  <% if (typeof query !== 'undefined' && query.cadastro === 'sucesso') { %>
-    <p class="mensagem-sucesso">Cadastro realizado com sucesso! Faça login.</p>
-  <% } %>
+  <div class="login-wrapper"> <% if (typeof query !== 'undefined' && query.cadastro === 'sucesso') { %>
+      <p class="mensagem-sucesso">Cadastro realizado com sucesso! Faça login.</p>
+    <% } %>
 
-  <% if (typeof erro !== 'undefined' && erro) { %>
-    <p class="mensagem-erro"><%= erro %></p>
-  <% } %>
+    <% if (typeof erro !== 'undefined' && erro) { %>
+      <p class="mensagem-erro"><%= erro %></p>
+    <% } %>
 
-  <form action="/login" method="POST">
-    <h2>Login</h2>
-    <input type="email" name="email" placeholder="E-mail" required><br>
-    <input type="password" name="password" placeholder="Senha" required><br>
+    <form action="/login" method="POST">
+      <h2>Login</h2>
+      <input type="email" name="email" placeholder="E-mail" required><br>
+      <input type="password" name="password" placeholder="Senha" required><br>
 
-    <!-- Aqui entra o reCAPTCHA -->
-    <div class="g-recaptcha" data-sitekey="6Lc5KYIrAAAAAFD2Ab1ml4sKrT504VYZRJsuUcS3"></div><br>
+      <div class="g-recaptcha" data-sitekey="6Lc5KYIrAAAAAFD2Ab1ml4sKrT504VYZRJsuUcS3"></div><br>
 
-    <button type="submit">Entrar</button>
-    <p>Não tem conta? <a href="./register">Cadastre-se</a></p>
-    <p><a href="/forgot">Esqueci minha senha</a></p>
-  </form>
+      <button type="submit">Entrar</button>
+      <p>Não tem conta? <a href="./register">Cadastre-se</a></p>
+      <p><a href="/forgot">Esqueci minha senha</a></p>
+    </form>
+
+  </div>
 
 </body>
 </html>
