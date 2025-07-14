@@ -46,10 +46,6 @@ body {
 	overflow-x: hidden;
 }
 
-
-
-
-
 /* SIDEBAR */
 #sidebar {
 	position: fixed;
@@ -82,13 +78,17 @@ body {
 	left: 0;
 	background: var(--light);
 	z-index: 500;
-	padding-bottom: 20px;
-	box-sizing: content-box;
+	padding: 0 24px; /* Espaçamento corrigido */
+	box-sizing: border-box;
 }
-#sidebar .brand .bx {
+#sidebar .brand .fa-snowflake {
 	min-width: 60px;
 	display: flex;
 	justify-content: center;
+	margin-left: -24px; /* Ajuste para centralizar com o padding */
+}
+#sidebar.hide .brand .text {
+    display: none;
 }
 #sidebar .side-menu {
 	width: 100%;
@@ -159,10 +159,6 @@ body {
 }
 /* SIDEBAR */
 
-
-
-
-
 /* CONTENT */
 #content {
 	position: relative;
@@ -174,9 +170,7 @@ body {
 	width: calc(100% - 60px);
 	left: 60px;
 }
-
-
-
+/* CONTENT */
 
 /* NAVBAR */
 #content nav {
@@ -302,10 +296,6 @@ body {
 }
 /* NAVBAR */
 
-
-
-
-
 /* MAIN */
 #content main {
 	width: 100%;
@@ -355,10 +345,6 @@ body {
 	grid-gap: 10px;
 	font-weight: 500;
 }
-
-
-
-
 #content main .box-info {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -402,11 +388,6 @@ body {
 #content main .box-info li .text p {
 	color: var(--dark);	
 }
-
-
-
-
-
 #content main .table-data {
 	display: flex;
 	flex-wrap: wrap;
@@ -435,7 +416,6 @@ body {
 #content main .table-data .head .bx {
 	cursor: pointer;
 }
-
 #content main .table-data .order {
 	flex-grow: 1;
 	flex-basis: 500px;
@@ -484,8 +464,6 @@ body {
 #content main .table-data .order table tr td .status.pending {
 	background: var(--orange);
 }
-
-
 #content main .table-data .todo {
 	flex-grow: 1;
 	flex-basis: 300px;
@@ -516,35 +494,25 @@ body {
 	margin-bottom: 0;
 }
 /* MAIN */
-/* CONTENT */
 
-
-
-
-
-
-
-
-
+/* RESPONSIVIDADE */
 @media screen and (max-width: 768px) {
-	#sidebar {
-		width: 200px;
-	}
+    #sidebar {
+        width: 200px;
+    }
+    #content {
+        width: calc(100% - 60px);
+        left: 200px;
+    }
+    #content nav .nav-link {
+        display: none;
+    }
 
-	#content {
-		width: calc(100% - 60px);
-		left: 200px;
-	}
-
-	#content nav .nav-link {
-		display: none;
-	}
+    /* Esconde o bloco .todo APENAS em páginas que NÃO SÃO o dashboard */
+    body:not(.page-dashboard) #content main .table-data .todo {
+        display: none;
+    }
 }
-
-
-
-
-
 
 @media screen and (max-width: 576px) {
 	#content nav form .form-input input {
@@ -580,13 +548,14 @@ body {
 		grid-template-columns: 1fr;
 	}
 
-	#content main .table-data .head {
-		min-width: 420px;
+    /* Remove a largura mínima que causa problemas em telas de celular */
+	#content main .table-data .head,
+    #content main .table-data .order table,
+    #content main .table-data .todo .todo-list {
+		min-width: 100%;
 	}
-	#content main .table-data .order table {
-		min-width: 420px;
-	}
-	#content main .table-data .todo .todo-list {
-		min-width: 420px;
-	}
+
+    #content main .head-title .left h1 {
+        font-size: 28px;
+    }
 }

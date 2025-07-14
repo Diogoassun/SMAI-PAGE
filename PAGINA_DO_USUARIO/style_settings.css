@@ -84,6 +84,7 @@ body {
     z-index: 500;
     padding-bottom: 20px;
     box-sizing: content-box;
+    padding-left: 15px;
 }
 #sidebar .brand .bx {
     min-width: 60px;
@@ -313,6 +314,7 @@ body {
     font-family: var(--poppins);
     max-height: calc(100vh - 56px);
     overflow-y: auto;
+    position: relative;
 }
 #content main .head-title {
     display: flex;
@@ -554,77 +556,103 @@ body {
 
 
 /* MAIN */
+#snow-container {
+    position: fixed; /* melhor para cobrir toda a tela */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* permite clicar nos elementos abaixo */
+    z-index: -1; /* ou qualquer valor alto */
+}
+
+#snow-container .snowflake-icon {
+    pointer-events: none;
+    animation: fadeIn 1.5s ease-in-out, fall 10s linear infinite;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-100px) rotate(0deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+    }
+}
 /* CONTENT */
 
 
-
-
-
-
-
-
-
+/* RESPONSIVIDADE */
 @media screen and (max-width: 768px) {
-    #sidebar {
-        width: 200px;
-    }
+	#sidebar {
+		width: 200px;
+	}
 
-    #content {
-        width: calc(100% - 60px);
-        left: 200px;
-    }
+	#content {
+		width: calc(100% - 60px);
+		left: 200px;
+	}
 
-    #content nav .nav-link {
-        display: none;
+	#content nav .nav-link {
+		display: none;
+	}
+    
+    /* Garante que os blocos de conteúdo fiquem um embaixo do outro */
+    #content main .table-data {
+        flex-direction: column;
     }
 }
 
-
-
-
+#sidebar.hide .brand .text {
+    display: none;
+}
 
 
 @media screen and (max-width: 576px) {
-    #content nav form .form-input input {
-        display: none;
+	#content nav form .form-input input {
+		display: none;
+	}
+
+	#content nav form .form-input button {
+		width: auto;
+		height: auto;
+		background: transparent;
+		border-radius: none;
+		color: var(--dark);
+	}
+
+	#content nav form.show .form-input input {
+		display: block;
+		width: 100%;
+	}
+	#content nav form.show .form-input button {
+		width: 36px;
+		height: 100%;
+		border-radius: 0 36px 36px 0;
+		color: var(--light);
+		background: var(--red);
+	}
+
+	#content nav form.show ~ .notification,
+	#content nav form.show ~ .profile {
+		display: none;
+	}
+
+	#content main .box-info {
+		grid-template-columns: 1fr;
+	}
+    
+    #content main .table-data {
+        flex-direction: column;
     }
 
-    #content nav form .form-input button {
-        width: auto;
-        height: auto;
-        background: transparent;
-        border-radius: none;
-        color: var(--dark);
-    }
-
-    #content nav form.show .form-input input {
-        display: block;
-        width: 100%;
-    }
-    #content nav form.show .form-input button {
-        width: 36px;
-        height: 100%;
-        border-radius: 0 36px 36px 0;
-        color: var(--light);
-        background: var(--red);
-    }
-
-    #content nav form.show ~ .notification,
-    #content nav form.show ~ .profile {
-        display: none;
-    }
-
-    #content main .box-info {
-        grid-template-columns: 1fr;
-    }
-
-    #content main .table-data .head {
-        min-width: 420px;
-    }
-    #content main .table-data .order table {
-        min-width: 420px;
-    }
+	#content main .table-data .head,
+    #content main .table-data .order table,
     #content main .table-data .todo .todo-list {
-        min-width: 420px;
+		min-width: 100%;
+	}
+
+    #content main .head-title .left h1 {
+        font-size: 28px;
     }
 }

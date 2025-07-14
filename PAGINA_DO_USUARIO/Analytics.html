@@ -14,28 +14,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-	<title>SMAI control</title>
+	<title>SMAI</title>
 </head>
 <body>
 
 
 	<!-- SIDEBAR -->
 	<section id="sidebar">
-		<a href="#" class="brand">
+		<a href="./index.html" class="brand">
 			<i class="fa-solid fa-snowflake" ></i>
-			<span class="text">SMAI control</span>
+			<span class="text">SMAI</span>
 		</a>
 		<ul class="side-menu top">
 			<li>
-				<a href="./index.html">
+				<a href="./presentation.html">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
-				</a>
-			</li>
-			<li>
-				<a href="#">
-					<i class='bx bxs-shopping-bag-alt' ></i>
-					<span class="text">My Store</span>
 				</a>
 			</li>
 			<li class="active">
@@ -45,15 +39,9 @@
 				</a>
 			</li>
 			<li>
-				<a href="#">
-					<i class='bx bxs-message-dots' ></i>
-					<span class="text">Message</span>
-				</a>
-			</li>
-			<li>
-				<a href="#">
+				<a href="suporte.html">
 					<i class='bx bxs-group' ></i>
-					<span class="text">Team</span>
+					<span class="text">Suporte</span>
 				</a>
 			</li>
 		</ul>
@@ -161,6 +149,7 @@
     },
     options: {
       responsive: true,
+      aintainAspectRatio: false,
       scales: {
         y: {
           beginAtZero: false,
@@ -268,7 +257,28 @@
 
     pdf.save('relatorio_analytics.pdf');
   }
+
+  const sidebar = document.getElementById('sidebar');
+  const menuButton = document.querySelector('#content nav .bx.bx-menu');
+
+  menuButton.addEventListener('click', function () {
+    sidebar.classList.toggle('hide');
+  });
+
+  // Verifica o tamanho da tela ao carregar e esconde a sidebar se necessário
+  if (window.innerWidth < 768) {
+    sidebar.classList.add('hide');
+  }
+
+  // Opcional: esconde a sidebar se o usuário redimensionar a janela para um tamanho pequeno
+  window.addEventListener('resize', function () {
+    if (this.innerWidth < 768) {
+      sidebar.classList.add('hide');
+    }
+  });
+
 </script>
+
 
 
 </body>

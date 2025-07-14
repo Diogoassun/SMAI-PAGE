@@ -84,6 +84,7 @@ body {
 	z-index: 500;
 	padding-bottom: 20px;
 	box-sizing: content-box;
+	padding-left: 15px;
 }
 #sidebar .brand .bx {
 	min-width: 60px;
@@ -539,6 +540,30 @@ body {
 	#content nav .nav-link {
 		display: none;
 	}
+
+	/* Faz o botão "Download PDF" ir para baixo do título em telas muito pequenas */
+    #content main .head-title {
+        flex-wrap: wrap;
+    }
+
+    /* Diminui o tamanho do título principal para caber melhor */
+    #content main .head-title .left h1 {
+        font-size: 28px;
+    }
+
+    /* Diminui o tamanho dos títulos das seções (Tabela e Tarefas) */
+    #content main .table-data .head h3 {
+        font-size: 20px;
+    }
+
+    /* Garante que os cards de informação ("box-info") ocupem a largura total */
+    #content main .box-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+#sidebar.hide .brand .text {
+    display: none;
 }
 
 
@@ -590,3 +615,6 @@ body {
 		min-width: 420px;
 	}
 }
+
+/*---------------------- RESPONSIVIDADE EM DISPOSITIVOS MOVEIS -------------------------------------*/
+

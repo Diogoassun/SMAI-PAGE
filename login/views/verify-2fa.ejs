@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verificação 2FA</title>
+</head>
+<body>
+  <h1>Verificação de Dois Fatores</h1>
+  <p>Enviamos um código de 6 dígitos para seu e-mail. Por favor, digite abaixo:</p>
+  <% if (erro) { %>
+    <p style="color:red;"><%= erro %></p>
+  <% } %>
+  <form action="/verify-2fa" method="POST">
+    <input type="text" name="code" placeholder="Digite o código" required maxlength="6" pattern="\d{6}" />
+    <button type="submit">Verificar</button>
+  </form>
+</body>
+</html>
