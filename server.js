@@ -12,6 +12,7 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const PORT = process.env.PORT || 3000;
 
 // --- CONFIGURAÇÕES ---
 const CONFIG = {
@@ -391,6 +392,6 @@ app.post('/reset/:token', async (req, res) => {
 });
 
 // --- Iniciar servidor ---
-app.listen(CONFIG.PORT, () => {
-  console.log(`Servidor rodando na porta ${CONFIG.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}.`);
 });
