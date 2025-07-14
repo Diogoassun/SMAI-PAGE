@@ -189,7 +189,7 @@ app.post('/login', async (req, res) => {
           return res.redirect('/verify-2fa');
         }
         req.session.email = decryptedEmail;
-        return res.render('logado', { email: decryptedEmail });
+        return res.redirect('/PAGINA_DO_USUARIO/presentation.html');
       }
     }
     return res.render('index', { erro: 'E-mail ou senha incorretos', query: {} });
