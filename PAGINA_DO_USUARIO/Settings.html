@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function carregarMarcas() {
         try {
-            const response = await fetch('https://smai-7cmk.onrender.com/api/marcas');
+            const response = await fetch('https://smai-page.onrender.com/api/marcas');
             const marcas = await response.json();
             selectMarca.innerHTML = '<option value="">Selecione uma marca</option>';
             marcas.forEach(marca => {
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         try {
-            const response = await fetch(`https://smai-7cmk.onrender.com/api/modelos?marca_id=${marcaId}`);
+            const response = await fetch(`https://smai-page.onrender.com/api/modelos?marca_id=${marcaId}`);
             const modelos = await response.json();
             selectModelo.innerHTML = '<option value="">Selecione um modelo</option>';
             modelos.forEach(modelo => {
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusControle.textContent = `Enviando comando '${comando}'...`;
         statusControle.style.color = '#333';
         try {
-            const response = await fetch(`https://smai-7cmk.onrender.com/led?estado=${comando}`);
+            const response = await fetch(`https://smai-page.onrender.com/led?estado=${comando}`);
             if (!response.ok) throw new Error('Erro do servidor da ESP');
             const message = await response.text();
             statusControle.textContent = message;

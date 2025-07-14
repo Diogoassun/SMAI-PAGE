@@ -113,32 +113,12 @@ app.get('/', (req, res) => {
 
 // Buscar marcas
 app.get('/api/marcas', async (req, res) => {
-  // Declara a variável de conexão aqui para que seja acessível em todo o bloco
-  let connection; 
-
   try {
-    // 1. Criar a conexão com o banco de dados
-    connection = await mysql.createConnection(dbConfig);
-    console.log("Conexão com o MySQL estabelecida com sucesso!");
-
-    // 2. Definir e executar a consulta SQL
-    const sql = 'SELECT id, nome FROM marcas ORDER BY nome ASC';
-    const [rows] = await connection.execute(sql);
-
-    // 3. Enviar os resultados de volta como JSON
+    const rows = await query('SELECT id, nome FROM marcas ORDER BY nome ASC');
     res.json(rows);
-
   } catch (err) {
-    // Se ocorrer um erro, registre-o no console
     console.error('Erro ao buscar marcas:', err);
     res.status(500).json({ error: 'Erro ao buscar dados das marcas.' });
-
-  } finally {
-    // 4. Garantir que a conexão seja sempre fechada
-    if (connection) {
-      await connection.end();
-      console.log("Conexão com o MySQL fechada.");
-    }
   }
 });
 
@@ -409,6 +389,68 @@ app.post('/reset/:token', async (req, res) => {
   } catch (err) {
     console.error('Erro em /reset/:token POST:', err);
     res.status(500).send('Erro ao redefinir senha.');
+  }
+});
+
+app.get('/debug-marcas', async (req, res) => {
+  let connection;
+  try {
+    // 1. Conecta ao banco de dados
+    connection = await mysql.createConnection(dbConfig);
+
+    // 2. Executa a consulta exata para buscar as marcas
+    const [marcas] = await connection.execute('SELECT id, nome FROM marcas ORDER BY nome ASC');
+
+    // 3. Verifica o resultado e mostra na tela
+    if (marcas.length === 0) {
+      // Caso a consulta funcione mas não retorne nenhuma linha
+      res.status(200).send(`
+        <h1>🟡 Consulta bem-sucedida, mas a tabela 'marcas' está vazia.</h1>
+        <p>A conexão com o banco de dados e a consulta SQL funcionaram corretamente.</p>
+        <p>O problema é que não há nenhum registro na sua tabela <strong>marcas</strong>.</p>
+        <p><strong>Solução:</strong> Adicione algumas marcas à sua tabela no MySQL (usando phpMyAdmin, por exemplo) e tente novamente.</p>
+      `);
+    } else {
+      // Caso encontre marcas, exibe em uma tabela
+      res.status(200).send(`
+        <h1>✅ Marcas encontradas com sucesso!</h1>
+        <p>Foram encontrados <strong>${marcas.length}</strong> registros na tabela 'marcas'.</p>
+        <p>Isso confirma que seu backend está buscando os dados corretamente. Se eles não aparecem na página principal, o erro está no seu código <strong>Frontend</strong> (JavaScript).</p>
+        <hr>
+        <h2>Dados Retornados:</h2>
+        <table border="1" cellpadding="5" cellspacing="0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${marcas.map(marca => `<tr><td>${marca.id}</td><td>${marca.nome}</td></tr>`).join('')}
+          </tbody>
+        </table>
+        <hr>
+        <h3>Dados em formato JSON (bruto):</h3>
+        <pre>${JSON.stringify(marcas, null, 2)}</pre>
+      `);
+    }
+
+  } catch (err) {
+    // Se a consulta falhar (ex: tabela não existe)
+    console.error('ERRO AO BUSCAR MARCAS (DEBUG):', err);
+    res.status(500).send(`
+        <h1>❌ Falha ao buscar dados da tabela 'marcas'</h1>
+        <p>A conexão com o banco de dados pode estar funcionando, mas a consulta à tabela <strong>marcas</strong> falhou.</p>
+        <p><strong>Causa provável:</strong> A tabela 'marcas' não existe no banco de dados '${dbConfig.database}' ou o nome da tabela/colunas está incorreto.</p>
+        <hr>
+        <h2>Detalhes do Erro:</h2>
+        <pre style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap;"><code>${err.stack}</code></pre>
+    `);
+  } finally {
+    // Garante que a conexão seja sempre fechada
+    if (connection) {
+      await connection.end();
+    }
   }
 });
 
