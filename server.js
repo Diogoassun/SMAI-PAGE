@@ -195,7 +195,7 @@ app.post('/login', async (req, res) => {
     return res.render('index', { erro: 'E-mail ou senha incorretos', query: {} });
 
   } catch (err) {
-    console.error('Erro no login:', err.message);
+    console.error('Erro no login:', err); // mostra o erro completo
     return res.status(500).send('Erro no servidor durante o login.');
   }
 });
