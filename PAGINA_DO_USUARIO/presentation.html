@@ -163,32 +163,17 @@
 					</table>
 				</div>
 				<div class="todo">
-					<div class="head">
-						<h3>Controle Manual</h3>
-						<i class='bx bx-plus' ></i>
-						<i class='bx bx-filter' ></i>
+					<div class="head"><h3>Controle Manual</h3></div>
+					<div id="status-controle" style="padding: 0 16px; margin-top: 10px; font-weight: bold;">
+						Selecione uma marca e modelo para começar.
 					</div>
+
 					<ul class="todo-list">
-						<li class="completed">
-							<p>Ligar AC</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="completed">
-							<p>Desligar AC</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="completed">
-							<p>Aumentar Temperatura</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="completed">
-							<p>Diminuir Temperatura</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
-						<li class="completed">
-							<p>Modo Turbo</p>
-							<i class='bx bx-dots-vertical-rounded' ></i>
-						</li>
+						<li><button id="btn-ligar" class="control-button">Ligar AC</button><i class='bx bx-power-off'></i></li>
+						<li><button id="btn-desligar" class="control-button">Desligar AC</button><i class='bx bx-power-off' style="color: red;"></i></li>
+						<li><button id="btn-aumentar-temp" class="control-button">Aumentar Temperatura</button><i class='bx bx-chevrons-up'></i></li>
+						<li><button id="btn-diminuir-temp" class="control-button">Diminuir Temperatura</button><i class='bx bx-chevrons-down'></i></li>
+						<li><button id="btn-turbo" class="control-button">Modo Turbo</button><i class='bx bxs-hot'></i></li>
 					</ul>
 				</div>
 			</div>
