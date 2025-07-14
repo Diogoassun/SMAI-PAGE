@@ -495,6 +495,41 @@ body {
 }
 /* MAIN */
 
+/* ========= CSS AJUSTADO PARA OS BOTÕES DE CONTROLE ========= */
+#content main .table-data .todo .todo-list .control-button {
+    /* Reseta a aparência padrão do botão */
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    
+    /* Faz o botão herdar as fontes e cores do seu container */
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+
+    /* Garante que o alinhamento do texto seja à esquerda */
+    text-align: left;
+    
+    /* Faz o botão ocupar todo o espaço disponível para a esquerda */
+    flex-grow: 1;
+
+    /* Adiciona um espaço entre o texto e o ícone à direita */
+    margin-right: 16px;
+    
+    /* Muda o cursor para indicar que é clicável */
+    cursor: pointer;
+    
+    /* Adiciona uma transição suave para o efeito hover */
+    transition: color .3s ease;
+}
+
+#content main .table-data .todo .todo-list .control-button:hover {
+    /* Muda a cor do texto ao passar o mouse, como em outros links */
+    color: var(--blue);
+}
+/* ============================================================= */
+
 /* RESPONSIVIDADE */
 @media screen and (max-width: 768px) {
     #sidebar {
