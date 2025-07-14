@@ -456,6 +456,30 @@ app.get('/debug-marcas', async (req, res) => {
   }
 });
 
+let comandoAtualESP = null;
+
+// Rota para a ESP buscar o comando atual
+app.get('/api/esp/comando', (req, res) => {
+  if (comandoAtualESP) {
+    res.json({ comando: comandoAtualESP });
+    // Opcional: após enviar, limpa o comando pra não repetir
+    comandoAtualESP = null;
+  } else {
+    res.json({ comando: null }); // Nenhum comando novo no momento
+  }
+});
+
+app.post('/api/esp/comando', (req, res) => {
+  const { comando } = req.body;
+  if (!comando) {
+    return res.status(400).json({ error: 'Comando é obrigatório' });
+  }
+  comandoAtualESP = comando;
+  console.log(`Novo comando para ESP: ${comando}`);
+  res.json({ message: 'Comando registrado para ESP' });
+});
+
+
 // --- Iniciar servidor ---
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}.`);

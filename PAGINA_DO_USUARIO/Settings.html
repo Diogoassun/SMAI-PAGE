@@ -119,12 +119,12 @@
 					</div>
 
 					<ul class="todo-list">
-						<li><button id="btn-ligar" class="control-button">Ligar AC</button><i class='bx bx-power-off'></i></li>
-						<li><button id="btn-desligar" class="control-button">Desligar AC</button><i class='bx bx-power-off' style="color: red;"></i></li>
-						<li><button id="btn-aumentar-temp" class="control-button">Aumentar Temperatura</button><i class='bx bx-chevrons-up'></i></li>
-						<li><button id="btn-diminuir-temp" class="control-button">Diminuir Temperatura</button><i class='bx bx-chevrons-down'></i></li>
-						<li><button id="btn-turbo" class="control-button">Modo Turbo</button><i class='bx bxs-hot'></i></li>
-					</ul>
+                    <li><button id="btn-ligar" class="control-button">Ligar AC</button><i class='bx bx-power-off'></i></li>
+                    <li><button id="btn-desligar" class="control-button">Desligar AC</button><i class='bx bx-power-off' style="color: red;"></i></li>
+                    <li><button id="btn-aumentar-temp" class="control-button">Aumentar Temperatura</button><i class='bx bx-chevrons-up'></i></li>
+                    <li><button id="btn-diminuir-temp" class="control-button">Diminuir Temperatura</button><i class='bx bx-chevrons-down'></i></li>
+                    <li><button id="btn-turbo" class="control-button">Modo Turbo</button><i class='bx bxs-hot'></i></li>
+                    </ul>
 				</div>
 			</div>
 
@@ -326,33 +326,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-let espIP = '';
-const btnConectar = document.getElementById('btn-conectar');
-const inputIP = document.getElementById('esp-ip');
-const statusConexao = document.getElementById('status-conexao');
 
-btnConectar.addEventListener('click', async () => {
-    const ip = inputIP.value.trim();
-    if (!ip) {
-        statusConexao.textContent = "Digite um IP válido.";
-        statusConexao.style.color = 'red';
-        return;
-    }
+async function enviarComandoParaBackend(comando) {
+  try {
+    const response = await fetch('https://smai-page.onrender.com/api/esp/comando', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comando }),
+    });
+    const data = await response.json();
+    console.log('Resposta do backend:', data.message);
+    statusControle.textContent = `Comando '${comando}' enviado com sucesso!`;
+    statusControle.style.color = 'green';
+  } catch (error) {
+    console.error('Erro ao enviar comando para backend:', error);
+    statusControle.textContent = `Erro ao enviar comando '${comando}'.`;
+    statusControle.style.color = 'red';
+  }
+}
 
-    try {
-        // Tentamos fazer uma requisição de teste
-        const response = await fetch(`http://${ip}/status`);
-        if (!response.ok) throw new Error("ESP não respondeu");
-        espIP = ip; // Armazena o IP globalmente
-        statusConexao.textContent = `Conectado com sucesso a ${ip}`;
-        statusConexao.style.color = 'green';
-    } catch (error) {
-        console.error('Erro ao conectar à ESP:', error);
-        espIP = '';
-        statusConexao.textContent = 'Falha ao conectar com a ESP.';
-        statusConexao.style.color = 'red';
-    }
-});
+// Associa os botões com os comandos corretos
+btnLigar.addEventListener('click', () => enviarComandoParaBackend('ligar'));
+btnDesligar.addEventListener('click', () => enviarComandoParaBackend('desligar'));
+btnAumentarTemp.addEventListener('click', () => enviarComandoParaBackend('aumentar_temp'));
+btnDiminuirTemp.addEventListener('click', () => enviarComandoParaBackend('diminuir_temp'));
+btnTurbo.addEventListener('click', () => enviarComandoParaBackend('turbo'));
 
 </script>
 </body>
