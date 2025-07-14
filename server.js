@@ -276,14 +276,16 @@ app.post('/verify-2fa', (req, res) => {
 
 // Ativar 2FA
 app.get('/enable-2fa', async (req, res) => {
-  if (!req.session.email) return res.redirect('/login');
+  if (!req.session.email) {
+    return res.status(401).json({ error: 'Usuário não autenticado.' });
+  }
   try {
     const emailHash = crypto.createHash('sha256').update(req.session.email).digest('hex');
     await query('UPDATE users SET two_factor_enabled = 1 WHERE email_hash = ?', [emailHash]);
-    res.render('enable-2fa', { mensagem: '2FA ativado com sucesso.' });
+    res.json({ mensagem: '2FA ativado com sucesso!' }); // <-- Retorna JSON
   } catch (err) {
     console.error('Erro ao ativar 2FA:', err);
-    res.status(500).send('Erro ao ativar 2FA');
+    res.status(500).json({ error: 'Erro interno ao ativar 2FA.' });
   }
 });
 

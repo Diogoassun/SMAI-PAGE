@@ -68,7 +68,21 @@
 						<i class='bx bx-search'></i>
 						<i class='bx bx-filter'></i>
 					</div>
-
+                    <div class="order">
+                        <div class="head">
+                            <h3>Segurança da Conta</h3>
+                        </div>
+                        <div style="padding: 20px;">
+                            <p style="margin-bottom: 15px; line-height: 1.5;">
+                                Ative a autenticação de dois fatores (2FA) para adicionar uma camada extra de proteção à sua conta. Um código de verificação será enviado para seu e-mail a cada login.
+                            </p>
+                            
+                            <a href="#" id="btn-ativar-2fa" class="control-button" style="text-decoration: none; padding: 10px 15px; background-color: #3C91E6; color: white; border-radius: 5px; display: inline-block;">
+                            <i class='bx bxs-shield-check'></i> Ativar 2FA
+                            </a>
+                            <p id="mensagem-2fa" style="margin-top: 15px; color: green; font-weight: bold;"></p>
+                        </div>
+                    </div>
 					<div style="padding: 10px;">
 						<label for="marcas" style="display:block; margin-bottom: 5px;">Marca:</label>
 						<select id="marcas" style="width: 100%; padding: 8px; border-radius: 5px;">
@@ -148,6 +162,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- LÓGICA PARA ATIVAR O 2FA SEM RECARREGAR A PÁGINA ---
+        const btnAtivar2FA = document.getElementById('btn-ativar-2fa');
+        const mensagem2FA = document.getElementById('mensagem-2fa');
+
+        if (btnAtivar2FA) {
+            btnAtivar2FA.addEventListener('click', async (event) => {
+                event.preventDefault(); // Impede a navegação do link
+
+                try {
+                    // Chama a rota no backend em segundo plano
+                    const response = await fetch('/enable-2fa');
+                    const data = await response.json(); // Espera uma resposta JSON
+
+                    if (response.ok) {
+                        mensagem2FA.textContent = data.mensagem;
+                        btnAtivar2FA.style.display = 'none'; // Esconde o botão após o sucesso
+                    } else {
+                        mensagem2FA.style.color = 'red';
+                        mensagem2FA.textContent = data.error || 'Erro desconhecido.';
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao ativar 2FA via fetch:', error);
+                    mensagem2FA.style.color = 'red';
+                    mensagem2FA.textContent = 'Falha na comunicação com o servidor.';
+                }
+            });
+        }
 
     // ---- FUNÇÃO PARA AJUSTAR O LAYOUT RESPONSIVO ----
     function adjustLayout() {
