@@ -326,6 +326,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+let espIP = null; // variável global
+
+const inputESP = document.getElementById('esp-ip');
+const btnConectar = document.getElementById('btn-conectar');
+const statusConexao = document.getElementById('status-conexao');
+
+btnConectar.addEventListener('click', () => {
+  const ip = inputESP.value.trim();
+  if (!ip) {
+    statusConexao.textContent = 'Digite um IP válido.';
+    statusConexao.style.color = 'red';
+    return;
+  }
+  // Simplesmente armazena o IP
+  espIP = ip;
+  statusConexao.textContent = `Conectado ao IP: ${espIP}`;
+  statusConexao.style.color = 'green';
+});
+
 
 async function enviarComandoParaBackend(comando) {
   try {
