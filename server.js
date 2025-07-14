@@ -267,7 +267,7 @@ app.post('/verify-2fa', (req, res) => {
     delete req.session.pendingUser;
     delete req.session.verificationCode;
     delete req.session.verificationExpires;
-    return res.render('logado', { email: req.session.email });
+    return res.redirect('/presentation.html');
   } else {
     return res.render('verify-2fa', { erro: 'Código incorreto. Tente novamente.' });
   }
