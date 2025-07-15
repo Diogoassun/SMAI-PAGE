@@ -14,6 +14,12 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 3000;
 
+
+const mqtt = require('mqtt');
+const fs = require('fs');
+const http = require('http'); 
+const { Server } = require("socket.io");
+
 // --- CONFIGURAÇÕES ---
 const CONFIG = {
   PORT: process.env.PORT || 3001,
@@ -34,6 +40,7 @@ const dbConfig = {
   database: process.env.DB_NAME || 'sua_base',
   port: process.env.DB_PORT || 3306,
 };
+
 
 
 // Função para query simplificada com conexão automática
@@ -165,13 +172,13 @@ app.get('/login', (req, res) => {
 // Login POST
 app.post('/login', async (req, res) => {
   const { email, password, 'g-recaptcha-response': captcha } = req.body;
-  if (!captcha) return res.render('index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
+ // if (!captcha) return res.render('index', { erro: 'Por favor, confirme que você não é um robô.', query: {} });
 
   try {
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CONFIG.RECAPTCHA_SECRET}&response=${captcha}`;
+    /*const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${CONFIG.RECAPTCHA_SECRET}&response=${captcha}`;
     const response = await axios.post(verifyUrl);
     if (!response.data.success) return res.render('index', { erro: 'Falha na verificação do reCAPTCHA.', query: {} });
-
+    */
     const emailHash = crypto.createHash('sha256').update(email).digest('hex');
     const users = await query('SELECT * FROM users WHERE email_hash = ?', [emailHash]);
 
@@ -456,6 +463,7 @@ app.get('/debug-marcas', async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 let comandoAtualESP = null;
 
 // Rota para a ESP buscar o comando atual
@@ -482,5 +490,87 @@ app.post('/api/esp/comando', (req, res) => {
 
 // --- Iniciar servidor ---
 app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}.`);
+=======
+const server = http.createServer(app);
+const io = new Server(server);
+
+// --- INÍCIO DA SEÇÃO MQTT E SOCKET.IO ---
+
+// 1. CONFIGURAÇÃO DO CLIENTE MQTT
+// ==============================================================
+const options = {
+  host: process.env.MQTT_HOST,
+  port: 8883,
+  protocol: 'mqtts',
+  clientId: 'simai-backend-' + Math.random().toString(16).substr(2, 8),
+  // GARANTA QUE SEU .env TENHA OS NOMES COM _PATH NO FINAL
+  key: fs.readFileSync(process.env.MQTT_KEY_PATH),
+  cert: fs.readFileSync(process.env.MQTT_CERT_PATH),
+  ca: fs.readFileSync(process.env.MQTT_CA_PATH)
+};
+
+const mqttClient = mqtt.connect(options);
+
+// 2. LÓGICA DO CLIENTE MQTT (O QUE FAZER AO CONECTAR, RECEBER MENSAGEM, ETC)
+// ==============================================================
+mqttClient.on('connect', () => {
+  console.log('✅ Conectado ao Broker MQTT!');
+  // Assina o tópico para receber dados JSON do ESP32
+  mqttClient.subscribe('simai/dados', (err) => {
+    if (err) {
+      console.error('Erro ao assinar o tópico simai/dados:', err);
+    } else {
+      console.log('✅ Assinatura ao tópico "simai/dados" realizada com sucesso.');
+    }
+  });
+>>>>>>> a45b3be37e8ca475699ed65d27048a7cd16990a9
+});
+
+// LÓGICA CORRETA PARA RECEBER JSON DO ESP32
+mqttClient.on('message', (topic, message) => {
+    if (topic === 'simai/dados') { 
+        try {
+            const data = JSON.parse(message.toString());
+            console.log('✅ Dados JSON recebidos do ESP32:', data);
+            io.emit('sensorData', data); 
+        } catch (e) {
+            console.error("❌ Erro ao processar mensagem JSON do ESP32:", e);
+        }
+    }
+});
+
+mqttClient.on('error', (err) => {
+  console.error('❌ Erro no cliente MQTT:', err);
+});
+
+// 3. LÓGICA DO SOCKET.IO (O QUE FAZER QUANDO UM USUÁRIO CONECTA PELO NAVEGADOR)
+// ==============================================================
+io.on('connection', (socket) => {
+    console.log('Um usuário se conectou via Socket.IO:', socket.id);
+
+    // LÓGICA CORRETA PARA ENVIAR COMANDOS PARA O ESP32
+    socket.on('sendIrCommand', (data) => {
+      console.log('Recebido comando IR do frontend:', data);
+      const payload = JSON.stringify(data);
+
+      // Publica no tópico padronizado correto
+      mqttClient.publish('simai/comandos', payload, (err) => {
+        if (err){
+            console.error('❌ Erro ao publicar comando IR via MQTT:', err);
+        } else {
+            console.log('✅ Comando IR publicado com sucesso!');
+        }
+      });
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Usuário desconectou:', socket.id);
+    });
+});
+
+// --- FIM DA SEÇÃO MQTT E SOCKET.IO ---
+
+server.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}.`);
 });
