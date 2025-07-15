@@ -541,6 +541,9 @@ io.on('connection', (socket) => {
 
 // --- FIM DA SEÇÃO MQTT E SOCKET.IO ---
 
-server.listen(PORT, () => {
+server.listen({
+    host: '0.0.0.0',
+    port: PORT
+},() => {
   console.log(`Servidor rodando na porta ${PORT}.`);
 });
