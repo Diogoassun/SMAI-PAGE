@@ -186,11 +186,39 @@
 	</section>
 	<!-- CONTENT -->
 	
-
+	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
     // ---- LÓGICA PARA MARCAR O MENU ATIVO ----
     const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li');
+ 	const socket = io();
+       const statusConexaoEl = document.getElementById('status-conexao');
+        const dadosSensorEl = document.getElementById('dados-sensor'); // O elemento <pre>
+
+        // Atualiza o statu s da conexão para o usuário
+        socket.on('connect', () => {
+            statusConexaoEl.textContent = 'Conectado';
+            statusConexaoEl.style.color = 'green';
+        });
+
+        // Ouve o evento 'sensorData' que o seu server.js envia
+        socket.on('sensorData', (data) => {
+            // 'data' é o objeto JSON, por exemplo: { "temperatura": 25.7 }
+            const temperatura = data.temperatura;
+
+            // --- ESTA É A LINHA QUE EXIBE A STRING NA TELA ---
+            if (dadosSensorEl && temperatura !== undefined) {
+                dadosSensorEl.textContent = `Temperatura recebida: ${temperatura}°C`;
+            }
+
+            // Opcional: mostra o objeto completo no console do navegador para debug
+            console.log('Dados recebidos do ESP32:', data);
+        });
+
+        socket.on('disconnect', () => {
+            statusConexaoEl.textContent = 'Desconectado';
+            statusConexaoEl.style.color = 'red';
+        });
 
     allSideMenu.forEach(item => {
         // Encontra o link dentro do item da lista
