@@ -188,67 +188,111 @@
 	
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-    // ---- LÓGICA PARA MARCAR O MENU ATIVO ----
-    const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li');
- 	const socket = io();
-       const statusConexaoEl = document.getElementById('status-conexao');
-        const dadosSensorEl = document.getElementById('dados-sensor'); // O elemento <pre>
+document.addEventListener('DOMContentLoaded', function() {
 
-        // Atualiza o statu s da conexão para o usuário
-        socket.on('connect', () => {
+    // ===================================================================
+    // 1. SELEÇÃO DE TODOS OS ELEMENTOS DA PÁGINA
+    // ===================================================================
+    const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li');
+    const menuBar = document.querySelector('#content nav .bx.bx-menu');
+    const sidebar = document.getElementById('sidebar');
+    const searchButton = document.querySelector('#content nav form .form-input button');
+    const searchButtonIcon = document.querySelector('#content nav form .form-input button .bx');
+    const searchForm = document.querySelector('#content nav form');
+    const switchMode = document.getElementById('switch-mode');
+    
+    // Elementos para dados em tempo real
+    const statusConexaoEl = document.getElementById('status-conexao');
+    const dadosSensorEl = document.getElementById('dados-sensor');
+
+    // --- ELEMENTOS DO CONTROLE MANUAL ADICIONADOS AQUI ---
+    const statusControle = document.getElementById('status-controle');
+    const btnLigar = document.getElementById('btn-ligar');
+    const btnDesligar = document.getElementById('btn-desligar');
+    const btnAumentarTemp = document.getElementById('btn-aumentar-temp');
+    const btnDiminuirTemp = document.getElementById('btn-diminuir-temp');
+    const btnTurbo = document.getElementById('btn-turbo');
+
+
+    // ===================================================================
+    // 2. CONFIGURAÇÃO DO SOCKET.IO
+    // ===================================================================
+    const socket = io();
+
+    socket.on('connect', () => {
+        if (statusConexaoEl) {
             statusConexaoEl.textContent = 'Conectado';
             statusConexaoEl.style.color = 'green';
-        });
+        }
+    });
 
-        // Ouve o evento 'sensorData' que o seu server.js envia
-        socket.on('sensorData', (data) => {
-            // 'data' é o objeto JSON, por exemplo: { "temperatura": 25.7 }
-            const temperatura = data.temperatura;
-
-            // --- ESTA É A LINHA QUE EXIBE A STRING NA TELA ---
-            if (dadosSensorEl && temperatura !== undefined) {
-                dadosSensorEl.textContent = `Temperatura recebida: ${temperatura}°C`;
-            }
-
-            // Opcional: mostra o objeto completo no console do navegador para debug
-            console.log('Dados recebidos do ESP32:', data);
-        });
-
-        socket.on('disconnect', () => {
+    socket.on('disconnect', () => {
+        if (statusConexaoEl) {
             statusConexaoEl.textContent = 'Desconectado';
             statusConexaoEl.style.color = 'red';
-        });
+        }
+    });
 
+    // Ouve o evento 'sensorData' que o seu server.js envia
+    socket.on('sensorData', (data) => {
+        if (dadosSensorEl && data.temperatura !== undefined) {
+            dadosSensorEl.textContent = `Temperatura recebida: ${data.temperatura}°C`;
+        }
+        console.log('Dados recebidos do ESP32:', data);
+    });
+    
+
+    // ===================================================================
+    // 3. DEFINIÇÃO DAS FUNÇÕES DA PÁGINA
+    // ===================================================================
+
+    // --- FUNÇÃO DO CONTROLE MANUAL ADICIONADA AQUI ---
+    function enviarComandoIR(comando) {
+        if (!statusControle) return;
+        const data = { comando: comando };
+        
+        console.log("Enviando comando via Socket.IO:", data);
+        statusControle.textContent = `Enviando: ${comando}...`;
+        socket.emit('sendIrCommand', data);
+
+        setTimeout(() => {
+            statusControle.textContent = `Comando "${comando}" enviado.`;
+        }, 800);
+    }
+
+    // Função para ajustar o layout com base no tamanho da tela
+    function adjustLayout() {
+        if (sidebar && window.innerWidth < 768) {
+            sidebar.classList.add('hide');
+        }
+        if (window.innerWidth > 576 && searchForm && searchButtonIcon) {
+            searchButtonIcon.classList.replace('bx-x', 'bx-search');
+            searchForm.classList.remove('show');
+        }
+    }
+
+
+    // ===================================================================
+    // 4. ADIÇÃO DOS EVENT LISTENERS
+    // ===================================================================
+    
+    // Lógica para marcar o menu ativo
     allSideMenu.forEach(item => {
-        // Encontra o link dentro do item da lista
         const a = item.querySelector('a');
         if (a.href === window.location.href) {
-             // Remove a classe 'active' de todos os itens antes de adicionar à correta
-            allSideMenu.forEach(i => {
-                i.classList.remove('active');
-            })
+            allSideMenu.forEach(i => i.classList.remove('active'));
             item.classList.add('active');
         }
     });
 
-    // ---- LÓGICA PARA O BOTÃO DE OCULTAR A BARRA LATERAL ----
-    const menuBar = document.querySelector('#content nav .bx.bx-menu');
-    const sidebar = document.getElementById('sidebar');
-
+    // Lógica para o botão de ocultar a barra lateral
     if (menuBar && sidebar) {
-        menuBar.addEventListener('click', function () {
-            sidebar.classList.toggle('hide');
-        });
+        menuBar.addEventListener('click', () => sidebar.classList.toggle('hide'));
     }
 
-    // ---- LÓGICA PARA O BOTÃO DE BUSCA EM TELAS PEQUENAS ----
-    const searchButton = document.querySelector('#content nav form .form-input button');
-    const searchButtonIcon = document.querySelector('#content nav form .form-input button .bx');
-    const searchForm = document.querySelector('#content nav form');
-
+    // Lógica para o botão de busca em telas pequenas
     if (searchButton && searchForm) {
-        searchButton.addEventListener('click', function (e) {
+        searchButton.addEventListener('click', (e) => {
             if (window.innerWidth < 576) {
                 e.preventDefault();
                 searchForm.classList.toggle('show');
@@ -261,50 +305,40 @@
         });
     }
 
-    // ---- LÓGICA PARA O SWITCH DE MODO ESCURO ----
-    const switchMode = document.getElementById('switch-mode');
-
+    // Lógica para o switch de modo escuro
     if (switchMode) {
-        // Verifica se o modo escuro já estava salvo no localStorage
         if (localStorage.getItem('darkMode') === 'true') {
             switchMode.checked = true;
             document.body.classList.add('dark');
         }
-
         switchMode.addEventListener('change', function () {
             if (this.checked) {
                 document.body.classList.add('dark');
-                localStorage.setItem('darkMode', 'true'); // Salva a preferência
+                localStorage.setItem('darkMode', 'true');
             } else {
                 document.body.classList.remove('dark');
-                localStorage.setItem('darkMode', 'false'); // Salva a preferência
+                localStorage.setItem('darkMode', 'false');
             }
         });
     }
     
-    // ---- FUNÇÃO PARA AJUSTAR O LAYOUT COM BASE NO TAMANHO DA TELA ----
-    function adjustLayout() {
-        if (sidebar) {
-            if (window.innerWidth < 768) {
-                sidebar.classList.add('hide');
-            }
-        }
-
-        if (window.innerWidth > 576) {
-            if(searchForm && searchButtonIcon) {
-                searchButtonIcon.classList.replace('bx-x', 'bx-search');
-                searchForm.classList.remove('show');
-            }
-        }
-    }
-    
-    // Ajusta o layout ao carregar a página
-    adjustLayout();
+    // --- EVENTOS DO CONTROLE MANUAL ADICIONADOS AQUI ---
+    if(btnLigar) btnLigar.addEventListener('click', () => enviarComandoIR('LIGAR'));
+    if(btnDesligar) btnDesligar.addEventListener('click', () => enviarComandoIR('DESLIGAR'));
+    if(btnAumentarTemp) btnAumentarTemp.addEventListener('click', () => enviarComandoIR('AUMENTAR_TEMP'));
+    if(btnDiminuirTemp) btnDiminuirTemp.addEventListener('click', () => enviarComandoIR('DIMINUIR_TEMP'));
+    if(btnTurbo) btnTurbo.addEventListener('click', () => enviarComandoIR('TURBO'));
     
     // Ajusta o layout ao redimensionar a janela
     window.addEventListener('resize', adjustLayout);
+
+
+    // ===================================================================
+    // 5. INICIALIZAÇÃO DA PÁGINA
+    // ===================================================================
+    adjustLayout();
 });
-	</script>
+</script>
 
 
 </body>
