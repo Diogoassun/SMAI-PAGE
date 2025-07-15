@@ -1,3 +1,4 @@
+
 # Sistema de Monitoramento Ambiental Inteligente (SMAI)
 
 ![Status](https://img.shields.io/badge/status-Em%20Desenvolvimento-yellow)
@@ -47,17 +48,16 @@ O projeto é composto por três pilares principais:
 - 🕓 Histórico de dados e exportação de relatórios
 
 ---
+
 ## 🏗️ Arquitetura do Sistema
 
+```
 [Nó Sensor 1] ----╮
-[Nó Sensor 2] ----┤ (NRF24L01) [Nó Central] <---- MQTT/Socket.IO ----> [Sistema Web]
-[Nó Sensor N] ----╯ (STM32 + IR) (Node.js + EJS)
-|
-(Infravermelho) ---> [Ar-Condicionado]
-
-yaml
-Copiar
-Editar
+[Nó Sensor 2] ----┤     (NRF24L01)     [Nó Central] <---- MQTT/Socket.IO ----> [Sistema Web]
+[Nó Sensor N] ----╯                     (STM32 + IR)                           (Node.js + EJS)
+                                         |
+                                (Infravermelho) ---> [Ar-Condicionado]
+```
 
 ---
 
@@ -110,18 +110,19 @@ Editar
 ```bash
 git clone https://github.com/seu-usuario/smai-projeto.git
 cd smai-projeto
-2. Configure o Backend
-bash
-Copiar
-Editar
+```
+
+#### 2. Configure o Backend
+
+```bash
 cd backend
 npm install
 cp .env.example .env
-Preencha o arquivo .env com suas credenciais:
+```
 
-env
-Copiar
-Editar
+Preencha o arquivo `.env` com suas credenciais:
+
+```env
 # Banco de Dados
 DB_HOST=localhost
 DB_USER=root
@@ -135,36 +136,37 @@ MQTT_PORT=8883
 MQTT_KEY_PATH=./certs/private.key
 MQTT_CERT_PATH=./certs/certificate.crt
 MQTT_CA_PATH=./certs/ca_bundle.crt
+```
+
 Depois, inicie o servidor:
 
-bash
-Copiar
-Editar
+```bash
 npm start
-3. Configure o Firmware
-Abra o projeto no STM32CubeIDE ou PlatformIO
+```
 
-Ajuste os pinos de comunicação com NRF24L01
+#### 3. Configure o Firmware
 
-Compile e grave nos dispositivos
+- Abra o projeto no STM32CubeIDE ou PlatformIO  
+- Ajuste os pinos de comunicação com NRF24L01  
+- Compile e grave nos dispositivos  
 
-📱 Uso
-Acesse: http://localhost:3000
+---
 
-Crie uma conta e faça login
+## 📱 Uso
 
-Visualize os sensores conectados em tempo real
+- Acesse: `http://localhost:3000`  
+- Crie uma conta e faça login  
+- Visualize os sensores conectados em tempo real  
+- Acesse gráficos e relatórios  
+- Controle o ar-condicionado remotamente via interface web  
 
-Acesse gráficos e relatórios
+---
 
-Controle o ar-condicionado remotamente via interface web
+## 🤝 Como Contribuir
 
-🤝 Como Contribuir
 Contribuições são sempre bem-vindas! Siga os passos abaixo:
 
-bash
-Copiar
-Editar
+```bash
 # 1. Faça um fork do projeto
 # 2. Crie uma branch para sua feature
 git checkout -b minha-feature
@@ -176,11 +178,10 @@ git commit -m 'Minha nova feature'
 git push origin minha-feature
 
 # 5. Abra um Pull Request
-📄 Licença
-Este projeto está licenciado sob a licença MIT – veja o arquivo LICENSE para mais detalhes.
-
-yaml
-Copiar
-Editar
+```
 
 ---
+
+## 📄 Licença
+
+Este projeto está licenciado sob a licença MIT – veja o arquivo [`LICENSE`](LICENSE) para mais detalhes.
