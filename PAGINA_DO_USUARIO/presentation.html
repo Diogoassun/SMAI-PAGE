@@ -101,14 +101,18 @@
 				</div>
 			</div>
 
+			<p>Status da Conexão: <strong id="status-conexao" style="color: orange;">Conectando...</strong></p>
+
 
 			<div class="table-data">
 				<div class="order">
 					<div class="head">
 						<h3>Temperatura e Umidade recentes</h3>
+						<h3>Dados do Sensor (MQTT em Tempo Real)</h3>
 						<i class='bx bx-search' ></i>
 						<i class='bx bx-filter' ></i>
 					</div>
+					<pre id="dados-sensor" style="background: #eee; padding: 15px; border-radius: 10px; color: #333; max-height: 200px; overflow-y: auto;">Aguardando dados...</pre>
 					<table>
 						<thead>
 							<tr>
@@ -273,5 +277,7 @@
     window.addEventListener('resize', adjustLayout);
 });
 	</script>
+
+
 </body>
 </html>
