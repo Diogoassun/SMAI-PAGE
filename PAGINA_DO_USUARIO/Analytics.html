@@ -138,8 +138,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // ===================================================================
     // LÓGICA DA INTERFACE DO USUÁRIO (UI)
     // ===================================================================
-
-    // --- LÓGICA DA BARRA LATERAL (SIDEBAR) ADICIONADA AQUI ---
     const menuBar = document.querySelector('#content nav .bx.bx-menu');
     const sidebar = document.getElementById('sidebar');
 
@@ -155,6 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const ctx = document.getElementById('temperatureChart').getContext('2d');
 
+    // --- GRÁFICO DE LINHA ---
     const temperatureChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -171,36 +170,31 @@ document.addEventListener('DOMContentLoaded', function () {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    suggestedMin: 15,
-                    suggestedMax: 35
-                }
-            }
+            scales: { y: { beginAtZero: false, suggestedMin: 15, suggestedMax: 35 } }
         }
     });
 
-    // Inicializa o heatmap com Plotly
+    // --- MAPA DE CALOR (HEATMAP) ---
     const heatmapDiv = document.getElementById('heatmap');
+    // A estrutura de dados inicial (4x5)
+    let initialZ = [
+        [20, 21, 22, 21, 20],
+        [22, 24, 25, 24, 22],
+        [23, 26, 28, 26, 23],
+        [21, 23, 24, 23, 21]
+    ];
+
     let heatmapData = [{
-        z: [
-            [20, 21, 22, 21, 20],
-            [22, 24, 25, 24, 22],
-            [23, 26, 28, 26, 23],
-            [21, 23, 24, 23, 21]
-        ],
+        z: initialZ,
         type: 'contour',
-        colorscale: [
-            [0, 'blue'], [0.25, 'cyan'], [0.5, 'green'], [0.75, 'yellow'], [1, 'red']
-        ],
+        colorscale: [ [0, 'blue'], [0.25, 'cyan'], [0.5, 'green'], [0.75, 'yellow'], [1, 'red'] ],
         contours: { coloring: 'heatmap', showlines: false },
         line: { smoothing: 0.85 },
         hoverinfo: 'z'
     }];
 
     Plotly.newPlot(heatmapDiv, heatmapData, {
-        title: 'Mapa de Calor Suave da Sala',
+        title: 'Mapa de Calor da Sala (Simulado)',
         autosize: true,
         margin: { t: 50, r: 30, b: 30, l: 50 },
     });
@@ -216,10 +210,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const novaTemperatura = data.temperatura;
         if (novaTemperatura === undefined) return;
 
+        // 1. ATUALIZA O GRÁFICO DE LINHA (como antes)
         const now = new Date();
         const label = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-
-        // Atualiza o gráfico de linha
+        
         temperatureChart.data.labels.push(label);
         temperatureChart.data.datasets[0].data.push(novaTemperatura);
 
@@ -230,26 +224,32 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         temperatureChart.update();
 
-        // Atualiza um ponto central do mapa de calor com a nova temperatura
-        const newZ = heatmapData[0].z;
-        newZ[2][2] = novaTemperatura; // Ponto central
-        
-        // Simula uma pequena variação nos pontos vizinhos para um efeito mais dinâmico
-        newZ[2][1] = novaTemperatura - (Math.random() * 2);
-        newZ[2][3] = novaTemperatura - (Math.random() * 2);
-        newZ[1][2] = novaTemperatura - (Math.random() * 2);
+        // 2. ATUALIZA O MAPA DE CALOR COM BASE NA NOVA TEMPERATURA
+        const baseTemp = novaTemperatura;
+        // Recalcula toda a grade com pequenas variações em torno da temperatura base
+        const newZ = heatmapData[0].z.map(row => 
+            row.map(() => {
+                const variacao = (Math.random() * 4) - 2; // Cria uma variação de -2 a +2 graus
+                return parseFloat((baseTemp + variacao).toFixed(1));
+            })
+        );
 
-        Plotly.animate(heatmapDiv, { data: [{ z: newZ }] }, { transition: { duration: 500 }, frame: { duration: 500 } });
+        // Define o ponto central para ser EXATAMENTE a temperatura recebida
+        newZ[2][2] = baseTemp; 
+        
+        // Anima o mapa de calor para a nova grade de dados
+        Plotly.animate(heatmapDiv, { data: [{ z: newZ }] }, { transition: { duration: 1000 }, frame: { duration: 1000 } });
+
+        // Atualiza a referência de dados para a próxima animação
+        heatmapData[0].z = newZ;
     });
 
-    // --- LÓGICA PARA GERAR PDF (CORRIGIDA) ---
-    // A função é atribuída ao 'window' para ser acessível pelo 'onclick' no HTML.
+    // --- LÓGICA PARA GERAR PDF ---
     window.downloadPDF = async function () {
         const { jsPDF } = window.jspdf;
         const tempCanvas = document.getElementById('temperatureChart');
         const heatmapDiv = document.getElementById('heatmap');
-
-        // Renderiza ambos os gráficos como imagens
+        
         const tempImgData = tempCanvas.toDataURL('image/png', 1.0);
         const heatmapCanvas = await html2canvas(heatmapDiv);
         const heatmapImgData = heatmapCanvas.toDataURL('image/png', 1.0);
@@ -261,13 +261,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const tempAspectRatio = tempCanvas.width / tempCanvas.height;
         const heatmapAspectRatio = heatmapCanvas.width / heatmapCanvas.height;
-
         const tempHeight = usableWidth / tempAspectRatio;
         const heatmapHeight = usableWidth / heatmapAspectRatio;
         
         pdf.setFontSize(16);
         pdf.text('Relatório de Análise - SMAI', margin, 15);
-        
         pdf.setFontSize(12);
         pdf.text('Temperatura Recente', margin, 25);
         pdf.addImage(tempImgData, 'PNG', margin, 30, usableWidth, tempHeight);
