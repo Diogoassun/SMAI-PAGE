@@ -47,65 +47,67 @@ O projeto é composto por três pilares principais:
 - 🕓 Histórico de dados e exportação de relatórios
 
 ---
-
 ## 🏗️ Arquitetura do Sistema
 
-```text
 [Nó Sensor 1] ----╮
-[Nó Sensor 2] ----┤     (NRF24L01)     [Nó Central] <---- MQTT/Socket.IO ----> [Sistema Web]
-[Nó Sensor N] ----╯                     (STM32 + IR)                           (Node.js + EJS)
-                                             |
-                                    (Infravermelho) ---> [Ar-Condicionado]
-🚀 Tecnologias Utilizadas
-🔧 Hardware
-STM32F103C8T6 (Blue Pill)
+[Nó Sensor 2] ----┤ (NRF24L01) [Nó Central] <---- MQTT/Socket.IO ----> [Sistema Web]
+[Nó Sensor N] ----╯ (STM32 + IR) (Node.js + EJS)
+|
+(Infravermelho) ---> [Ar-Condicionado]
 
-NRF24L01+
-
-Sensores: BME280 ou DHT22
-
-Controle Infravermelho
-
-🧠 Firmware (Embarcado)
-Linguagem: C/C++
-
-Ambiente: STM32CubeIDE ou PlatformIO
-
-Bibliotecas: HAL, RF24, IRremote
-
-🖥️ Backend
-Node.js + Express.js
-
-Banco de Dados: MySQL
-
-Comunicação: MQTT + Socket.IO
-
-Autenticação: bcrypt, express-session
-
-🌐 Frontend
-HTML5 + CSS3 + JavaScript
-
-Template Engine: EJS
-
-Gráficos: Chart.js e Plotly.js
-
-🛠️ Como Começar
-Pré-requisitos
-Node.js (v16+)
-
-Git
-
-STM32CubeIDE ou PlatformIO
-
-MySQL Server
-
-Broker MQTT (Mosquitto, HiveMQ, etc.)
-
-Instalação
-1. Clone o repositório
-bash
+yaml
 Copiar
 Editar
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+### 🔧 Hardware
+
+- STM32F103C8T6 (Blue Pill)  
+- NRF24L01+  
+- Sensores: BME280 ou DHT22  
+- Controle Infravermelho  
+
+### 🧠 Firmware (Embarcado)
+
+- Linguagem: C/C++  
+- Ambiente: STM32CubeIDE ou PlatformIO  
+- Bibliotecas: HAL, RF24, IRremote  
+
+### 🖥️ Backend
+
+- Node.js + Express.js  
+- Banco de Dados: MySQL  
+- Comunicação: MQTT + Socket.IO  
+- Autenticação: `bcrypt`, `express-session`  
+
+### 🌐 Frontend
+
+- HTML5 + CSS3 + JavaScript  
+- Template Engine: EJS  
+- Gráficos: Chart.js e Plotly.js  
+
+---
+
+## 🛠️ Como Começar
+
+### Pré-requisitos
+
+- Node.js (v16+)  
+- Git  
+- STM32CubeIDE ou PlatformIO  
+- MySQL Server  
+- Broker MQTT (Mosquitto, HiveMQ, etc.)  
+
+---
+
+### Instalação
+
+#### 1. Clone o repositório
+
+```bash
 git clone https://github.com/seu-usuario/smai-projeto.git
 cd smai-projeto
 2. Configure o Backend
@@ -175,4 +177,10 @@ git push origin minha-feature
 
 # 5. Abra um Pull Request
 📄 Licença
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para mais detalhes.
+Este projeto está licenciado sob a licença MIT – veja o arquivo LICENSE para mais detalhes.
+
+yaml
+Copiar
+Editar
+
+---
