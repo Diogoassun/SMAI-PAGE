@@ -13,6 +13,7 @@
     <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 
 	<title>SMAI</title>
 </head>
@@ -132,177 +133,170 @@
 	
 
 	<script>
-  // --- Gráfico de Temperatura (linha) com Chart.js ---
-  const ctx = document.getElementById('temperatureChart').getContext('2d');
-  const temperatureChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00'],
-      datasets: [{
-        label: 'Temperatura (°C)',
-        data: [22, 21, 23, 24, 23, 22, 21],
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        fill: true,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      aintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: false,
-          suggestedMin: 15,
-          suggestedMax: 30
-        }
-      }
-    }
-  });
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('temperatureChart').getContext('2d');
 
-  // --- Mapa de Calor Suave Animado com Plotly ---
-  const heatmapDiv = document.getElementById('heatmap');
-
-  let heatmapData = [{
-    z: [
-      [1, 20, 30, 50, 1],
-      [20, 1, 60, 80, 30],
-      [30, 60, 1, -10, 20],
-      [50, 80, -10, 1, 0]
-    ],
-    type: 'contour',
-    colorscale: [
-      [0, 'blue'],
-      [0.25, 'cyan'],
-      [0.5, 'green'],
-      [0.75, 'yellow'],
-      [1, 'red']
-    ],
-    contours: {
-      coloring: 'heatmap',
-      showlines: false
-    },
-    line: {
-      smoothing: 0.8
-    },
-    hoverinfo: 'z'
-  }];
-
-  const heatmapLayout = {
-    title: 'Mapa de Calor Suave da Sala',
-    autosize: true,
-    margin: { t: 50, r: 30, b: 30, l: 50 },
-  };
-
-  Plotly.newPlot(heatmapDiv, heatmapData, heatmapLayout);
-
-  // Animação suave atualizando dados a cada 2 segundos
-  setInterval(() => {
-    // Atualiza os dados com pequenas variações aleatórias
-    const newZ = heatmapData[0].z.map(row =>
-      row.map(val => {
-        let novo = val + (Math.random() * 8 - 4);
-        // Limita valores para evitar extremos
-        if (novo < -20) novo = -20;
-        if (novo > 100) novo = 100;
-        return novo;
-      })
-    );
-    Plotly.animate(heatmapDiv, {
-      data: [{ z: newZ }]
-    }, {
-      transition: { duration: 1500, easing: 'cubic-in-out' },
-      frame: { duration: 1500 }
-    });
-    heatmapData[0].z = newZ; // atualiza para o próximo frame
-  }, 2000);
-
-  // --- Função para baixar os dois gráficos juntos em PDF A4 ---
-  async function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-
-    // Captura canvas da temperatura
-    const tempCanvas = document.getElementById('temperatureChart');
-    const tempImgData = tempCanvas.toDataURL('image/png', 1.0);
-
-    // Captura div do mapa de calor via html2canvas
-    const heatmapDiv = document.getElementById('heatmap');
-    const heatmapCanvas = await html2canvas(heatmapDiv);
-    const heatmapImgData = heatmapCanvas.toDataURL('image/png', 1.0);
-
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 10;
-    const usableWidth = pageWidth - 2 * margin;
-
-    // Tamanho das imagens no PDF mantendo proporção
-    const tempAspectRatio = tempCanvas.width / tempCanvas.height;
-    const heatmapAspectRatio = heatmapCanvas.width / heatmapCanvas.height;
-
-    const tempHeight = usableWidth / tempAspectRatio;
-    const heatmapHeight = usableWidth / heatmapAspectRatio;
-
-    // Insere imagem do gráfico de temperatura
-    pdf.text('Temperatura recente (Linha)', margin, 15);
-    pdf.addImage(tempImgData, 'PNG', margin, 20, usableWidth, tempHeight);
-
-    // Insere imagem do mapa de calor
-    pdf.text('Mapa de Calor da Sala', margin, 30 + tempHeight);
-    pdf.addImage(heatmapImgData, 'PNG', margin, 35 + tempHeight, usableWidth, heatmapHeight);
-
-    pdf.save('relatorio_analytics.pdf');
-  }
-
-  const sidebar = document.getElementById('sidebar');
-  const menuButton = document.querySelector('#content nav .bx.bx-menu');
-
-  menuButton.addEventListener('click', function () {
-    sidebar.classList.toggle('hide');
-  });
-
-  // Verifica o tamanho da tela ao carregar e esconde a sidebar se necessário
-  if (window.innerWidth < 768) {
-    sidebar.classList.add('hide');
-  }
-
-  // Opcional: esconde a sidebar se o usuário redimensionar a janela para um tamanho pequeno
-  window.addEventListener('resize', function () {
-    if (this.innerWidth < 768) {
-      sidebar.classList.add('hide');
-    }
-  });
-  const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li');
-    const currentPath = window.location.pathname.split("/").pop();
-    allSideMenu.forEach(item => {
-        const a = item.querySelector('a');
-        if (a && a.href.includes(currentPath)) {
-            allSideMenu.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-        }
-    });
-    
-  const switchMode = document.getElementById('switch-mode');
-    if (switchMode) {
-        if (localStorage.getItem('darkMode') === 'true') {
-            switchMode.checked = true;
-            document.body.classList.add('dark');
-        }
-        switchMode.addEventListener('change', function () {
-            if (this.checked) {
-                document.body.classList.add('dark');
-                localStorage.setItem('darkMode', 'true');
-            } else {
-                document.body.classList.remove('dark');
-                localStorage.setItem('darkMode', 'false');
+    const temperatureChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Temperatura (°C)',
+                data: [],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    suggestedMin: 15,
+                    suggestedMax: 35
+                }
             }
+        }
+    });
+
+    // Inicializa o heatmap com Plotly
+    const heatmapDiv = document.getElementById('heatmap');
+    let heatmapData = [{
+        z: [
+            [1, 20, 30, 50, 1],
+            [20, 1, 60, 80, 30],
+            [30, 60, 1, -10, 20],
+            [50, 80, -10, 1, 0]
+        ],
+        type: 'contour',
+        colorscale: [
+            [0, 'blue'],
+            [0.25, 'cyan'],
+            [0.5, 'green'],
+            [0.75, 'yellow'],
+            [1, 'red']
+        ],
+        contours: {
+            coloring: 'heatmap',
+            showlines: false
+        },
+        line: {
+            smoothing: 0.8
+        },
+        hoverinfo: 'z'
+    }];
+
+    Plotly.newPlot(heatmapDiv, heatmapData, {
+        title: 'Mapa de Calor Suave da Sala',
+        autosize: true,
+        margin: { t: 50, r: 30, b: 30, l: 50 },
+    });
+
+    // Atualização contínua do mapa
+    setInterval(() => {
+        const newZ = heatmapData[0].z.map(row =>
+            row.map(val => {
+                let novo = val + (Math.random() * 8 - 4);
+                return Math.max(-20, Math.min(100, novo));
+            })
+        );
+        Plotly.animate(heatmapDiv, {
+            data: [{ z: newZ }]
+        }, {
+            transition: { duration: 1500, easing: 'cubic-in-out' },
+            frame: { duration: 1500 }
         });
-    }
+        heatmapData[0].z = newZ;
+    }, 2000);
+
+    // === INTEGRAÇÃO COM DADOS VIA SOCKET.IO ===
+    const socket = io(); // Conecta ao servidor
+
+    socket.on('connect', () => {
+        console.log('✅ Conectado ao servidor via Socket.IO!');
+    });
+
+    socket.on('sensorData', (data) => {
+        const novaTemperatura = data.temperatura;
+        if (novaTemperatura === undefined) return;
+
+        const now = new Date();
+        const label = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+        temperatureChart.data.labels.push(label);
+        temperatureChart.data.datasets[0].data.push(novaTemperatura);
+
+        const maxDataPoints = 20;
+        if (temperatureChart.data.labels.length > maxDataPoints) {
+            temperatureChart.data.labels.shift();
+            temperatureChart.data.datasets[0].data.shift();
+        }
+
+        temperatureChart.update();
+
+        // Atualiza um ponto central do mapa com a nova temperatura
+        const newZ = heatmapData[0].z;
+        newZ[1][2] = novaTemperatura;
+        Plotly.animate(heatmapDiv, { data: [{ z: newZ }] }, { transition: { duration: 500 }, frame: { duration: 500 } });
+    });
+
+    // Função para gerar PDF
+    window.downloadPDF = async function () {
+        const { jsPDF } = window.jspdf;
+        const tempCanvas = document.getElementById('temperatureChart');
+        const tempImgData = tempCanvas.toDataURL('image/png', 1.0);
+
+        const heatmapCanvas = await html2canvas(document.getElementById('heatmap'));
+        const heatmapImgData = heatmapCanvas.toDataURL('image/png', 1.0);
+
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const margin = 10;
+        const usableWidth = pageWidth - 2 * margin;
+
+        const tempAspectRatio = tempCanvas.width / tempCanvas.height;
+        const heatmapAspectRatio = heatmapCanvas.width / heatmapCanvas.height;
+
+        const tempHeight = usableWidth / tempAspectRatio;
+        const heatmapHeight = usableWidth / heatmapAspectRatio;
+
+        pdf.text('Temperatura recente (Linha)', margin, 15);
+        pdf.addImage(tempImgData, 'PNG', margin, 20, usableWidth, tempHeight);
+        pdf.text('Mapa de Calor da Sala', margin, 30 + tempHeight);
+        pdf.addImage(heatmapImgData, 'PNG', margin, 35 + tempHeight, usableWidth, heatmapHeight);
+        pdf.save('relatorio_analytics.pdf');
+    };
+});
+
+async function downloadPDF() {
+			const { jsPDF } = window.jspdf;
+			const tempCanvas = document.getElementById('temperatureChart');
+			const tempImgData = tempCanvas.toDataURL('image/png', 1.0);
+			const heatmapCanvas = await html2canvas(document.getElementById('heatmap'));
+			const heatmapImgData = heatmapCanvas.toDataURL('image/png', 1.0);
+
+			const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+			const pageWidth = pdf.internal.pageSize.getWidth();
+			const margin = 10;
+			const usableWidth = pageWidth - 2 * margin;
+
+			const tempAspectRatio = tempCanvas.width / tempCanvas.height;
+			const heatmapAspectRatio = heatmapCanvas.width / heatmapCanvas.height;
+
+			const tempHeight = usableWidth / tempAspectRatio;
+			const heatmapHeight = usableWidth / heatmapAspectRatio;
+
+			pdf.text('Temperatura recente (Linha)', margin, 15);
+			pdf.addImage(tempImgData, 'PNG', margin, 20, usableWidth, tempHeight);
+			pdf.text('Mapa de Calor da Sala', margin, 30 + tempHeight);
+			pdf.addImage(heatmapImgData, 'PNG', margin, 35 + tempHeight, usableWidth, heatmapHeight);
+			pdf.save('relatorio_analytics.pdf');
+		}
 </script>
+
 
 
 
